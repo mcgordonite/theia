@@ -52,8 +52,8 @@ interface TerminalCSSProperties {
 @injectable()
 export class TerminalWidget extends BaseWidget implements StatefulWidget {
 
-    private terminalId: number | undefined;
-    private term: Xterm.Terminal;
+    protected terminalId: number | undefined;
+    protected term: Xterm.Terminal;
     protected restored = false;
     protected closeOnDispose = true;
 

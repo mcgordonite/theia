@@ -1,11 +1,11 @@
 {
   "name": "@theia/npm",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "npm support for Theia",
   "dependencies": {
-    "@theia/core": "^0.3.10",
-    "@theia/task": "^0.3.10",
-    "@theia/variable-resolver": "^0.3.10"
+    "@theia/core": "^0.3.11",
+    "@theia/task": "^0.3.11",
+    "@theia/variable-resolver": "^0.3.11"
   },
   "publishConfig": {
     "access": "public"
@@ -46,7 +46,7 @@
     "docs": "theiaext docs"
   },
   "devDependencies": {
-    "@theia/ext-scripts": "^0.3.10"
+    "@theia/ext-scripts": "^0.3.11"
   },
   "nyc": {
     "extends": "../../configs/nyc.json"

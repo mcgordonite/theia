@@ -1,11 +1,11 @@
 {
   "name": "@theia/che",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Che commands as Theia tasks support",
   "dependencies": {
-    "@theia/core": "^0.3.10",
-    "@theia/task": "^0.3.10",
-    "@theia/variable-resolver": "^0.3.10",
+    "@theia/core": "^0.3.11",
+    "@theia/task": "^0.3.11",
+    "@theia/variable-resolver": "^0.3.11",
     "@types/reconnectingwebsocket": "1.0.1",
     "@eclipse-che/workspace-client": "0.0.1-1523602788"
   },
@@ -49,7 +49,7 @@
     "docs": "theiaext docs"
   },
   "devDependencies": {
-    "@theia/ext-scripts": "^0.3.10"
+    "@theia/ext-scripts": "^0.3.11"
   },
   "nyc": {
     "extends": "../../configs/nyc.json"
