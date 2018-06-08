@@ -6,45 +6,40 @@
  */
 
 import { JsonRpcServer } from '@theia/core/lib/common/messaging/proxy-factory';
-import { RawProcessOptions } from '@theia/process/lib/node/raw-process';
-import { TerminalProcessOptions } from '@theia/process/lib/node/terminal-process';
 
 export const taskPath = '/services/task';
 
 export const TaskServer = Symbol('TaskServer');
 export const TaskClient = Symbol('TaskClient');
 
-export type ProcessType = 'terminal' | 'raw';
+export type ProcessType = 'shell' | 'process';
 
-export interface TaskInfo {
-    /** internal unique task id */
-    taskId: number,
-    /** terminal id. Defined if task is run as a terminal process */
-    terminalId?: number,
-    /** internal unique process id */
-    processId?: number,
-    /** OS PID of the process running the task */
-    osProcessId: number,
-    /** The command used to start this task */
-    command: string,
-    /** task label */
-    label: string,
-    /** context that was passed as part of task creation, if any */
-    ctx?: string
+export interface TaskConfiguration {
+    readonly type: string;
+    /** A label that uniquely identifies a task configuration */
+    readonly label: string;
+
+    /**
+     * Additional task type specific properties.
+     */
+    readonly [key: string]: any;
 }
 
-export interface TaskOptions {
-    /** A label that uniquely identifies a task configuration */
-    label: string,
-    /** 'raw' or 'terminal' - if not specified 'terminal' is the default */
-    processType?: ProcessType,
-    /** contains 'command', 'args?', 'options?' */
-    processOptions: RawProcessOptions | TerminalProcessOptions,
+export interface CommandProperties {
+    readonly command: string;
+    readonly args?: string[];
+    readonly options?: object;
+}
+
+/** Configuration of a Task that may be run as a process or a command inside a shell. */
+export interface ProcessTaskConfiguration extends TaskConfiguration, CommandProperties {
+    readonly type: ProcessType;
+
     /**
      * windows version of processOptions. Used in preference on Windows, if
      * defined
      */
-    windowsProcessOptions?: RawProcessOptions | TerminalProcessOptions,
+    readonly windows?: CommandProperties;
     /**
      * The 'current working directory' the task will run in. Can be a uri-as-string
      * or plain string path. If the cwd is meant to be somewhere under the workspace,
@@ -52,12 +47,23 @@ export interface TaskOptions {
      * at runtime. If not specified, defaults to the workspace root.
      * ex:  cwd: '${workspaceFolder}/foo'
      */
-    cwd?: string
+    readonly cwd?: string;
+}
+
+export interface TaskInfo {
+    /** internal unique task id */
+    readonly taskId: number,
+    /** terminal id. Defined if task is run as a terminal process */
+    readonly terminalId?: number,
+    /** context that was passed as part of task creation, if any */
+    readonly ctx?: string,
+    /** task config used for launching a task */
+    readonly config: TaskConfiguration
 }
 
 export interface TaskServer extends JsonRpcServer<TaskClient> {
     /** Run a task. Optionally pass a context.  */
-    run(task: TaskOptions, ctx?: string): Promise<TaskInfo>;
+    run(task: TaskConfiguration, ctx?: string): Promise<TaskInfo>;
     /** Kill a task, by id. */
     kill(taskId: number): Promise<void>;
     /**
@@ -73,10 +79,10 @@ export interface TaskServer extends JsonRpcServer<TaskClient> {
 
 /** Event sent when a task has concluded its execution */
 export interface TaskExitedEvent {
-    taskId: number;
-    code: number;
-    signal?: string;
-    ctx?: string
+    readonly taskId: number;
+    readonly ctx?: string;
+    readonly code: number;
+    readonly signal?: string;
 }
 
 export interface TaskClient {
