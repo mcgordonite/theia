@@ -64,8 +64,12 @@ export class TaskFrontendContribution implements CommandContribution, MenuContri
 
     onStart(): void {
         this.contributionProvider.getContributions().forEach(contrib => {
-            contrib.registerResolvers(this.taskResolverRegistry);
-            contrib.registerProviders(this.taskProviderRegistry);
+            if (contrib.registerResolvers) {
+                contrib.registerResolvers(this.taskResolverRegistry);
+            }
+            if (contrib.registerProviders) {
+                contrib.registerProviders(this.taskProviderRegistry);
+            }
         });
     }
 
@@ -105,7 +109,5 @@ export class TaskFrontendContribution implements CommandContribution, MenuContri
     registerResolvers(resolvers: TaskResolverRegistry): void {
         resolvers.register('process', this.processTaskResolver);
         resolvers.register('shell', this.processTaskResolver);
-    }
-    registerProviders(providers: TaskProviderRegistry): void {
     }
 }

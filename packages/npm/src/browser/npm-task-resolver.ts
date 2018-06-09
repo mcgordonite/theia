@@ -7,9 +7,9 @@
 
 import { injectable, inject } from 'inversify';
 import { TaskResolver } from '@theia/task/lib/browser';
-import { TaskConfiguration, ProcessTaskConfiguration } from '@theia/task/lib/common';
+import { TaskConfiguration } from '@theia/task/lib/common';
 import { VariableResolverService } from '@theia/variable-resolver/lib/browser';
-import { NpmTaskConfiguration } from './task-protocol';
+import { NpmTaskConfiguration, NPM_TASK_TYPE } from './task-protocol';
 
 @injectable()
 export class NpmTaskResolver implements TaskResolver {
@@ -22,13 +22,14 @@ export class NpmTaskResolver implements TaskResolver {
      * to the ProcessTaskConfiguration to be able to run it as a shell process.
      */
     async resolveTask(taskConfig: TaskConfiguration): Promise<TaskConfiguration> {
-        if (taskConfig.type !== 'npm') {
+        if (taskConfig.type !== NPM_TASK_TYPE) {
             throw new Error(`Unsupported task configuration type: ${taskConfig.type}`);
         }
         const npmTaskConfig = taskConfig as NpmTaskConfiguration;
-        const result: ProcessTaskConfiguration = {
-            type: 'shell',
+        const result: NpmTaskConfiguration = {
+            type: npmTaskConfig.type,
             label: npmTaskConfig.label,
+            script: npmTaskConfig.script,
             command: 'npm',
             args: ['run', npmTaskConfig.script],
             cwd: await this.variableResolverService.resolve(npmTaskConfig.cwd ? npmTaskConfig.cwd : '${workspaceFolder}')

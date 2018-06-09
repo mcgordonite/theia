@@ -14,12 +14,14 @@ export const TaskContribution = Symbol('TaskContribution');
  * The Task Contribution should be implemented to register the custom Resolvers, Providers.
  */
 export interface TaskContribution {
-    registerResolvers(resolvers: TaskResolverRegistry): void;
-    registerProviders(providers: TaskProviderRegistry): void;
+    registerResolvers?(resolvers: TaskResolverRegistry): void;
+    registerProviders?(providers: TaskProviderRegistry): void;
 }
+/** Allows to resolve a Task Configuration before sending it for execution to the Task Server. */
 export interface TaskResolver {
     resolveTask(taskConfig: TaskConfiguration): Promise<TaskConfiguration>;
 }
+/** Allows to contribute the Tasks programmatically to the system. */
 export interface TaskProvider {
     provideTasks(): Promise<TaskConfiguration[]>;
 }

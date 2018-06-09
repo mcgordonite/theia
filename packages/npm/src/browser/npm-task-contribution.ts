@@ -9,6 +9,7 @@ import { inject, injectable } from 'inversify';
 import { TaskContribution, TaskResolverRegistry, TaskProviderRegistry } from '@theia/task/lib/browser';
 import { NpmTaskProvider } from './npm-task-provider';
 import { NpmTaskResolver } from './npm-task-resolver';
+import { NPM_TASK_TYPE } from './task-protocol';
 
 @injectable()
 export class NpmTaskContribution implements TaskContribution {
@@ -20,10 +21,10 @@ export class NpmTaskContribution implements TaskContribution {
     protected readonly taskProvider: NpmTaskProvider;
 
     registerResolvers(resolvers: TaskResolverRegistry): void {
-        resolvers.register('npm', this.taskResolver);
+        resolvers.register(NPM_TASK_TYPE, this.taskResolver);
     }
 
     registerProviders(providers: TaskProviderRegistry): void {
-        providers.register('npm', this.taskProvider);
+        providers.register(NPM_TASK_TYPE, this.taskProvider);
     }
 }

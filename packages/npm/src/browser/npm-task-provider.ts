@@ -10,7 +10,7 @@ import { FileSystem } from '@theia/filesystem/lib/common';
 import { TaskProvider } from '@theia/task/lib/browser';
 import { TaskConfiguration } from '@theia/task/lib/common';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
-import { NpmTaskConfiguration } from './task-protocol';
+import { NpmTaskConfiguration, NPM_TASK_TYPE } from './task-protocol';
 
 /** Reads the scripts from the root package.json and provides it as Task Configurations. */
 @injectable()
@@ -34,7 +34,7 @@ export class NpmTaskProvider implements TaskProvider {
         for (const script in scripts) {
             if (scripts.hasOwnProperty(script)) {
                 const providedTask: NpmTaskConfiguration = {
-                    type: 'npm',
+                    type: NPM_TASK_TYPE,
                     label: `${script}`,
                     script: script,
                     processType: 'terminal',

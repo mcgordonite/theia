@@ -44,21 +44,17 @@ export class ProcessTaskRunner implements TaskRunner {
 
     /**
      * Runs a task from the given task configuration.
-     * @param taskConfig task configuration to run. The provided configuration must has a shape of `CommandProperties`.
-     * @param ctx
+     * @param taskConfig task configuration to run a task from. The provided task configuration must have a shape of `CommandProperties`.
      */
     async run(taskConfig: TaskConfiguration, ctx?: string): Promise<Task> {
-        if (taskConfig.type !== 'shell' && taskConfig.type !== 'process') {
-            throw new Error(`Process task config type must be shell or process`);
-        }
         if (!taskConfig.command) {
             throw new Error(`Process task config must have 'command' property specified`);
         }
 
-        // on windows, prefer windows-specific options, if available
         let command;
         let args;
         let options;
+        // on windows, prefer windows-specific options, if available
         if (isWindows && taskConfig.windows !== undefined) {
             command = taskConfig.windows.command;
             args = taskConfig.windows.args;
@@ -92,8 +88,8 @@ export class ProcessTaskRunner implements TaskRunner {
             try {
                 // use terminal or raw process
                 let proc: TerminalProcess | RawProcess;
-
-                if (taskConfig.type === 'process') {
+                const processType = taskConfig.type === 'process' ? 'process' : 'shell';
+                if (processType === 'process') {
                     this.logger.debug('Task: creating underlying raw process');
                     proc = this.rawProcessFactory(<RawProcessOptions>{
                         command: command,
@@ -114,7 +110,7 @@ export class ProcessTaskRunner implements TaskRunner {
                         label: taskConfig.label,
                         command: cmd,
                         process: proc,
-                        processType: taskConfig.type,
+                        processType: processType,
                         context: ctx,
                         config: taskConfig
                     });

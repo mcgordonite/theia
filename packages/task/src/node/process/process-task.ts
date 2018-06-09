@@ -35,7 +35,7 @@ export class ProcessTask extends Task {
         const toDispose =
             this.process.onExit(event => {
                 toDispose.dispose();
-                this.fireProcessExited({
+                this.fireTaskExited({
                     taskId: this.taskId,
                     ctx: this.options.context,
                     code: event.code,
@@ -46,7 +46,6 @@ export class ProcessTask extends Task {
         this.logger.info(`Created new task, id: ${this.id}, process id: ${this.options.process.id}, OS PID: ${this.process.pid}, context: ${this.context}`);
     }
 
-    /** terminates the task */
     kill(): Promise<void> {
         return new Promise<void>(resolve => {
             if (this.process.killed) {
@@ -61,7 +60,6 @@ export class ProcessTask extends Task {
         });
     }
 
-    /** Returns runtime information about task */
     getRuntimeInfo(): TaskInfo {
         return {
             taskId: this.id,

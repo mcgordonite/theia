@@ -7,6 +7,7 @@
 
 import { TaskConfiguration } from '@theia/task/lib/common';
 
+export const NPM_TASK_TYPE = 'npm';
 export interface NpmTaskConfiguration extends TaskConfiguration {
     type: 'npm';
     script: string;

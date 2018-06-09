@@ -31,18 +31,19 @@ export abstract class Task {
         this.exitEmitter = new Emitter<TaskExitedEvent>();
     }
 
-    /** terminates the task */
+    /** Terminates the task. */
     abstract kill(): Promise<void>;
 
     get onExit(): Event<TaskExitedEvent> {
         return this.exitEmitter.event;
     }
 
-    protected fireProcessExited(event: TaskExitedEvent): void {
+    /** Has to be called when a task has concluded its execution. */
+    protected fireTaskExited(event: TaskExitedEvent): void {
         this.exitEmitter.fire(event);
     }
 
-    /** Returns runtime information about task */
+    /** Returns runtime information about task. */
     abstract getRuntimeInfo(): TaskInfo;
 
     get id() {
