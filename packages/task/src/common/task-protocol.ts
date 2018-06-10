@@ -20,6 +20,7 @@ export interface TaskConfiguration {
     readonly [key: string]: any;
 }
 
+/** Runtime information about Task. */
 export interface TaskInfo {
     /** internal unique task id */
     readonly taskId: number,

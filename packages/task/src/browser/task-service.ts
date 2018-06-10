@@ -198,14 +198,14 @@ export class TaskService implements TaskConfigurationClient {
 
         this.logger.debug(`Task created. Task id: ${taskInfo.taskId}`);
 
-        // open terminal widget if the task is based on a terminal process:
+        // open terminal widget if the task is based on a terminal process (type: shell)
         if (taskInfo.terminalId !== undefined) {
             this.attach(taskInfo.terminalId, taskInfo.taskId);
         }
     }
 
     async attach(terminalId: number, taskId: number): Promise<void> {
-        // create terminal widget to display task's execution output
+        // create terminal widget to display an execution output of a Task that was launched as a command inside a shell
         const widget = <TerminalWidget>await this.widgetManager.getOrCreateWidget(
             TERMINAL_WIDGET_FACTORY_ID,
             <TerminalWidgetFactoryOptions>{
