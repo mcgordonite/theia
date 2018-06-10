@@ -12,7 +12,6 @@ import { MAIN_MENU_BAR, CommandContribution, Command, CommandRegistry, MenuContr
 import { FrontendApplication, FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { WidgetManager } from '@theia/core/lib/browser/widget-manager';
 import { TaskContribution, TaskResolverRegistry, TaskProviderRegistry } from './task-contribution';
-import { ProcessTaskResolver } from './process-task-resolver';
 
 export namespace TaskCommands {
     // Task menu
@@ -37,7 +36,7 @@ export namespace TaskCommands {
 }
 
 @injectable()
-export class TaskFrontendContribution implements CommandContribution, MenuContribution, FrontendApplicationContribution, TaskContribution {
+export class TaskFrontendContribution implements CommandContribution, MenuContribution, FrontendApplicationContribution {
     @inject(QuickOpenTask)
     protected readonly quickOpenTask: QuickOpenTask;
 
@@ -58,9 +57,6 @@ export class TaskFrontendContribution implements CommandContribution, MenuContri
 
     @inject(TaskResolverRegistry)
     protected readonly taskResolverRegistry: TaskResolverRegistry;
-
-    @inject(ProcessTaskResolver)
-    protected readonly processTaskResolver: ProcessTaskResolver;
 
     onStart(): void {
         this.contributionProvider.getContributions().forEach(contrib => {
@@ -104,10 +100,5 @@ export class TaskFrontendContribution implements CommandContribution, MenuContri
             label: TaskCommands.TASK_ATTACH.label ? TaskCommands.TASK_ATTACH.label.slice('Tasks: '.length) : TaskCommands.TASK_ATTACH.label,
             order: '1'
         });
-    }
-
-    registerResolvers(resolvers: TaskResolverRegistry): void {
-        resolvers.register('process', this.processTaskResolver);
-        resolvers.register('shell', this.processTaskResolver);
     }
 }

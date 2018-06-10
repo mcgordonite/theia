@@ -7,8 +7,9 @@
 
 import { injectable, inject } from 'inversify';
 import { VariableResolverService } from '@theia/variable-resolver/lib/browser';
-import { TaskResolver } from './task-contribution';
-import { ProcessTaskConfiguration, TaskConfiguration } from '../common/task-protocol';
+import { TaskResolver } from '../task-contribution';
+import { TaskConfiguration } from '../../common/task-protocol';
+import { ProcessTaskConfiguration } from '../../common/process/task-protocol';
 
 @injectable()
 export class ProcessTaskResolver implements TaskResolver {

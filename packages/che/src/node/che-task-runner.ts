@@ -7,8 +7,7 @@
 
 import { injectable, inject } from 'inversify';
 import { TaskConfiguration } from '@theia/task/lib/common';
-import { Task, TaskRunner } from '@theia/task/lib/node';
-import { TaskManager } from '@theia/task/lib/node/task-manager';
+import { Task, TaskRunner, TaskManager } from '@theia/task/lib/node';
 import { TaskFactory } from './che-task';
 import { ExecCreateClient, ExecAttachClientFactory } from './machine-exec-client';
 

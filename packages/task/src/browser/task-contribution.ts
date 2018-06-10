@@ -10,19 +10,20 @@ import { Disposable } from '@theia/core/lib/common/disposable';
 import { TaskConfiguration } from '../common/task-protocol';
 
 export const TaskContribution = Symbol('TaskContribution');
-/**
- * The Task Contribution should be implemented to register the custom Resolvers, Providers.
- */
+
+/** Allows to contribute custom Task Resolvers, Task Providers. */
 export interface TaskContribution {
     registerResolvers?(resolvers: TaskResolverRegistry): void;
     registerProviders?(providers: TaskProviderRegistry): void;
 }
-/** Allows to resolve a Task Configuration before sending it for execution to the Task Server. */
+
 export interface TaskResolver {
+    /** Resolves a Task Configuration before sending it for execution to the Task Server. */
     resolveTask(taskConfig: TaskConfiguration): Promise<TaskConfiguration>;
 }
-/** Allows to contribute the Tasks programmatically to the system. */
+
 export interface TaskProvider {
+    /** Returns the Task Configurations which are provides programmatically to the system. */
     provideTasks(): Promise<TaskConfiguration[]>;
 }
 
@@ -36,6 +37,7 @@ export class TaskResolverRegistry {
         this.resolvers = new Map();
     }
 
+    /** Registers the given Task Resolver to resolve the Task Configurations of the specified type. */
     register(type: string, resolver: TaskResolver): Disposable {
         this.resolvers.set(type, resolver);
         return {
@@ -50,6 +52,7 @@ export class TaskResolverRegistry {
 
 @injectable()
 export class TaskProviderRegistry {
+
     protected providers: Map<string, TaskProvider>;
 
     @postConstruct()
@@ -57,6 +60,7 @@ export class TaskProviderRegistry {
         this.providers = new Map();
     }
 
+    /** Registers the given Task Provider to return Task Configurations of the specified type. */
     register(type: string, resolver: TaskProvider): Disposable {
         this.providers.set(type, resolver);
         return {
@@ -68,6 +72,7 @@ export class TaskProviderRegistry {
         return this.providers.get(type);
     }
 
+    /** Returns all registered Task Providers. */
     getProviders(): TaskProvider[] {
         return [...this.providers.values()];
     }

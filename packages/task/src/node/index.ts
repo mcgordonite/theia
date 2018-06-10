@@ -7,3 +7,4 @@
 
 export * from './task';
 export * from './task-runner';
+export * from './task-manager';

@@ -10,7 +10,7 @@ import { ILogger, } from '@theia/core/lib/common/';
 import { Process } from "@theia/process/lib/node";
 import { Task, TaskOptions } from '../task';
 import { TaskManager } from '../task-manager';
-import { ProcessType, TaskInfo } from '../../common/task-protocol';
+import { ProcessType, ProcessTaskInfo } from '../../common/process/task-protocol';
 
 export const TaskProcessOptions = Symbol("TaskProcessOptions");
 export interface TaskProcessOptions extends TaskOptions {
@@ -22,6 +22,7 @@ export interface TaskProcessOptions extends TaskOptions {
 export const TaskFactory = Symbol("TaskFactory");
 export type TaskFactory = (options: TaskProcessOptions) => ProcessTask;
 
+/** Represents a Task launched as a process by `ProcessTaskRunner`. */
 @injectable()
 export class ProcessTask extends Task {
 
@@ -60,12 +61,12 @@ export class ProcessTask extends Task {
         });
     }
 
-    getRuntimeInfo(): TaskInfo {
+    getRuntimeInfo(): ProcessTaskInfo {
         return {
             taskId: this.id,
-            terminalId: (this.processType === 'shell') ? this.process.id : undefined,
             ctx: this.context,
-            config: this.options.config
+            config: this.options.config,
+            terminalId: (this.processType === 'shell') ? this.process.id : undefined
         };
     }
     get process() {

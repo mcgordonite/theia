@@ -12,42 +12,12 @@ export const taskPath = '/services/task';
 export const TaskServer = Symbol('TaskServer');
 export const TaskClient = Symbol('TaskClient');
 
-export type ProcessType = 'shell' | 'process';
-
 export interface TaskConfiguration {
     readonly type: string;
     /** A label that uniquely identifies a task configuration */
     readonly label: string;
-
-    /**
-     * Additional task type specific properties.
-     */
+    /** Additional task type specific properties. */
     readonly [key: string]: any;
-}
-
-export interface CommandProperties {
-    readonly command: string;
-    readonly args?: string[];
-    readonly options?: object;
-}
-
-/** Configuration of a Task that may be run as a process or a command inside a shell. */
-export interface ProcessTaskConfiguration extends TaskConfiguration, CommandProperties {
-    readonly type: ProcessType;
-
-    /**
-     * windows version of processOptions. Used in preference on Windows, if
-     * defined
-     */
-    readonly windows?: CommandProperties;
-    /**
-     * The 'current working directory' the task will run in. Can be a uri-as-string
-     * or plain string path. If the cwd is meant to be somewhere under the workspace,
-     * one can use the variable `${workspaceFolder}`, which will be replaced by its path,
-     * at runtime. If not specified, defaults to the workspace root.
-     * ex:  cwd: '${workspaceFolder}/foo'
-     */
-    readonly cwd?: string;
 }
 
 export interface TaskInfo {
@@ -58,7 +28,9 @@ export interface TaskInfo {
     /** context that was passed as part of task creation, if any */
     readonly ctx?: string,
     /** task config used for launching a task */
-    readonly config: TaskConfiguration
+    readonly config: TaskConfiguration,
+    /** Additional properties specific for a particular Task Runner. */
+    readonly [key: string]: any;
 }
 
 export interface TaskServer extends JsonRpcServer<TaskClient> {

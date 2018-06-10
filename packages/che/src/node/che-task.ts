@@ -7,8 +7,7 @@
 
 import { injectable, inject, named } from 'inversify';
 import { ILogger } from '@theia/core/lib/common/logger';
-import { Task, TaskOptions } from '@theia/task/lib/node/task';
-import { TaskManager } from '@theia/task/lib/node/task-manager';
+import { Task, TaskOptions, TaskManager } from '@theia/task/lib/node';
 import { CheTaskInfo } from '../common/task-protocol';
 
 export const TaskCheOptions = Symbol("TaskCheOptions");
@@ -39,8 +38,8 @@ export class CheTask extends Task {
         return {
             taskId: this.id,
             ctx: this.options.context,
-            execId: this.options.execId,
-            config: this.options.config
+            config: this.options.config,
+            execId: this.options.execId
         };
     }
 }

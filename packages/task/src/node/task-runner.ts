@@ -12,21 +12,16 @@ import { Task } from './task';
 import { TaskConfiguration } from '../common/task-protocol';
 
 export const TaskRunnerContribution = Symbol('TaskRunnerContribution');
-/**
- * The Task Runner Contribution should be implemented to register a custom Task Runner.
- */
+
+/** Allows to contribute custom Task Runners. */
 export interface TaskRunnerContribution {
     registerRunner(runners: TaskRunnerRegistry): void;
 }
 
 export const TaskRunner = Symbol('TaskRunner');
-/** A Task Runner knows how to run and kill a task of particular type. */
+/** A Task Runner knows how to run and kill a Task of a particular type. */
 export interface TaskRunner {
-    /**
-     * Runs a task based on the given task configuration.
-     * @param taskConfig task configuration to run a task from
-     * @param ctx
-     */
+    /** Runs a task based on the given task configuration. */
     run(taskConfig: TaskConfiguration, ctx?: string): Promise<Task>;
 }
 
@@ -46,7 +41,7 @@ export class TaskRunnerRegistry {
         this.defaultRunner = this.processTaskRunner;
     }
 
-    /** Registers a Task Runner for a particular Task Type. */
+    /** Registers the given Task Runner to execute the Tasks of the specified type. */
     registerRunner(type: string, runner: TaskRunner): Disposable {
         this.runners.set(type, runner);
         return {
@@ -54,7 +49,7 @@ export class TaskRunnerRegistry {
         };
     }
 
-    /** Returns a Task Runner registered for the specified Task Type or default Task Runner if none. */
+    /** Returns a Task Runner registered for the specified Task type or default Task Runner if none. */
     getRunner(type: string): TaskRunner | undefined {
         const runner = this.runners.get(type);
         return runner ? runner : this.defaultRunner;

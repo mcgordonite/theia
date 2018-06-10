@@ -7,6 +7,7 @@
 
 import { interfaces } from "inversify";
 import { ILogger } from "@theia/core";
+import { TaskWatcher } from "./task-watcher";
 
 /**
  * Create the bindings common to node and browser.
@@ -19,4 +20,6 @@ export function createCommonBindings(bind: interfaces.Bind) {
         const logger = ctx.container.get<ILogger>(ILogger);
         return logger.child('task');
     }).inSingletonScope().whenTargetNamed('task');
+
+    bind(TaskWatcher).toSelf().inSingletonScope();
 }

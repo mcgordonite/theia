@@ -27,7 +27,6 @@ export class CheTaskWatcher implements FrontendApplicationContribution {
     onStart(): void {
         this.taskWatcher.onTaskCreated((event: TaskInfo) => {
             // if (this.isEventForThisClient(event.ctx)) {
-            console.log('che task created - catched');
             if (event.config.type === 'che') {
                 this.attach((event as CheTaskInfo).execId, event.taskId);
             }

@@ -12,22 +12,21 @@ import { WebSocketConnectionProvider } from '@theia/core/lib/browser/messaging';
 import { QuickOpenTask } from './quick-open-task';
 import { TaskContribution, TaskProviderRegistry, TaskResolverRegistry } from './task-contribution';
 import { TaskService } from './task-service';
+import { TaskConfigurations } from './task-configurations';
+import { TaskFrontendContribution } from './task-frontend-contribution';
 import { createCommonBindings } from '../common/task-common-module';
 import { TaskServer, taskPath } from '../common/task-protocol';
 import { TaskWatcher } from '../common/task-watcher';
-import { ProcessTaskResolver } from './process-task-resolver';
-import { TaskFrontendContribution } from './task-frontend-contribution';
-import { TaskConfigurations } from './task-configurations';
+import { bindProcessTaskModule } from './process/process-task-frontend-module';
 
 export default new ContainerModule(bind => {
     bind(TaskFrontendContribution).toSelf().inSingletonScope();
     bind(TaskService).toSelf().inSingletonScope();
 
-    for (const identifier of [FrontendApplicationContribution, CommandContribution, MenuContribution, TaskContribution]) {
+    for (const identifier of [FrontendApplicationContribution, CommandContribution, MenuContribution]) {
         bind(identifier).toService(TaskFrontendContribution);
     }
 
-    bind(TaskWatcher).toSelf().inSingletonScope();
     bind(QuickOpenTask).toSelf().inSingletonScope();
     bind(TaskConfigurations).toSelf().inSingletonScope();
 
@@ -43,5 +42,5 @@ export default new ContainerModule(bind => {
     bind(TaskResolverRegistry).toSelf().inSingletonScope();
     bindContributionProvider(bind, TaskContribution);
 
-    bind(ProcessTaskResolver).toSelf().inSingletonScope();
+    bindProcessTaskModule(bind);
 });

@@ -7,6 +7,7 @@
 
 import { injectable, inject } from 'inversify';
 import { TaskService } from '@theia/task/lib/browser';
+import { CHE_TASK_TYPE } from '../common/task-protocol';
 
 @injectable()
 export class CheTaskService {
@@ -15,6 +16,6 @@ export class CheTaskService {
     protected readonly taskService: TaskService;
 
     run(label: string): void {
-        this.taskService.run('che', label);
+        this.taskService.run(CHE_TASK_TYPE, label);
     }
 }

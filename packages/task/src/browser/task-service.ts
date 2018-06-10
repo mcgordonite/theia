@@ -115,14 +115,14 @@ export class TaskService implements TaskConfigurationClient {
         });
     }
 
-    /** returns an array of known task configurations and provided by the extensions */
+    /** Returns an array of the task configurations configured in tasks.json and provided by the extensions. */
     async getTasks(): Promise<TaskConfiguration[]> {
         const configuredTasks = this.taskConfigurations.getTasks();
         const providedTasks = await this.getProvidedTasks();
         return [...configuredTasks, ...providedTasks];
     }
 
-    /** Returns an array of the task configurations provided by the extensions. */
+    /** Returns an array of the task configurations which are provided by the extensions. */
     async getProvidedTasks(): Promise<TaskConfiguration[]> {
         const providedTasks: TaskConfiguration[] = [];
         const providers = this.taskProviderRegistry.getProviders();
@@ -134,7 +134,7 @@ export class TaskService implements TaskConfigurationClient {
 
     /**
      * Returns a task configuration provided by an extension by task type and label.
-     * If there are no task configuration, returns `undefined`.
+     * If there are no task configuration, returns undefined.
      */
     async getProvidedTask(type: string, label: string): Promise<TaskConfiguration | undefined> {
         const provider = this.taskProviderRegistry.getProvider(type);
@@ -150,7 +150,23 @@ export class TaskService implements TaskConfigurationClient {
         return this.taskServer.getTasks(this.getContext());
     }
 
-    /** runs a task, by task type and task configuration label */
+    /**
+     * Runs a task, by task configuration label.
+     * Note, it looks for a task configured in tasks.json only.
+     */
+    async runConfiguredTask(taskLabel: string): Promise<void> {
+        const task = this.taskConfigurations.getTask(taskLabel);
+        if (!task) {
+            this.logger.error(`Can't get task launch configuration for label: ${taskLabel}`);
+            return;
+        }
+        this.run(task.type, task.label);
+    }
+
+    /**
+     * Runs a task, by task type and task configuration label.
+     * It looks for configured and provided tasks.
+     */
     async run(type: string, taskLabel: string): Promise<void> {
         let task = await this.getProvidedTask(type, taskLabel);
         if (!task) {

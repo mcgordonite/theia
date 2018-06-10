@@ -9,6 +9,7 @@ import { inject, injectable } from 'inversify';
 import { TaskContribution, TaskResolverRegistry, TaskProviderRegistry } from '@theia/task/lib/browser';
 import { CheTaskProvider } from './che-task-provider';
 import { CheTaskResolver } from './che-task-resolver';
+import { CHE_TASK_TYPE } from '../common/task-protocol';
 
 @injectable()
 export class CheTaskContribution implements TaskContribution {
@@ -20,10 +21,10 @@ export class CheTaskContribution implements TaskContribution {
     protected readonly taskProvider: CheTaskProvider;
 
     registerResolvers(resolvers: TaskResolverRegistry): void {
-        resolvers.register('che', this.taskResolver);
+        resolvers.register(CHE_TASK_TYPE, this.taskResolver);
     }
 
     registerProviders(providers: TaskProviderRegistry): void {
-        providers.register('che', this.taskProvider);
+        providers.register(CHE_TASK_TYPE, this.taskProvider);
     }
 }

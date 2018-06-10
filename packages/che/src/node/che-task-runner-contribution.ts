@@ -8,6 +8,7 @@
 import { injectable, inject } from 'inversify';
 import { TaskRunnerContribution, TaskRunnerRegistry } from '@theia/task/lib/node';
 import { CheTaskRunner } from './che-task-runner';
+import { CHE_TASK_TYPE } from '../common/task-protocol';
 
 @injectable()
 export class CheTaskRunnerContribution implements TaskRunnerContribution {
@@ -16,6 +17,6 @@ export class CheTaskRunnerContribution implements TaskRunnerContribution {
     protected readonly cheRunner: CheTaskRunner;
 
     registerRunner(runners: TaskRunnerRegistry): void {
-        runners.registerRunner('che', this.cheRunner);
+        runners.registerRunner(CHE_TASK_TYPE, this.cheRunner);
     }
 }

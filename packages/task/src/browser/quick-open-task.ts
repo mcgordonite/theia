@@ -18,14 +18,14 @@ export class QuickOpenTask implements QuickOpenModel {
 
     constructor(
         @inject(TaskService) protected readonly taskService: TaskService,
-        @inject(TaskConfigurations) protected readonly taskConigurations: TaskConfigurations,
+        @inject(TaskConfigurations) protected readonly taskConfigurations: TaskConfigurations,
         @inject(QuickOpenService) protected readonly quickOpenService: QuickOpenService
     ) { }
 
     async open(): Promise<void> {
         this.items = [];
 
-        const configuredTasks = await this.taskConigurations.getTasks();
+        const configuredTasks = await this.taskConfigurations.getTasks();
         for (const task of configuredTasks) {
             this.items.push(new TaskRunQuickOpenItem(task, this.taskService, false));
         }

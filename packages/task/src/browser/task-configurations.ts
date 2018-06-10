@@ -108,7 +108,7 @@ export class TaskConfigurations implements Disposable {
         return [...this.tasksMap.values()];
     }
 
-    /** returns the task configuration for a given label */
+    /** returns the task configuration for a given label or undefined if none */
     getTask(taskLabel: string): TaskConfiguration | undefined {
         return this.tasksMap.get(taskLabel);
     }
@@ -136,15 +136,15 @@ export class TaskConfigurations implements Disposable {
      * If reading a config file wasn't success then does nothing.
      */
     protected async refreshTasks() {
-        const tasksOptionsArray = await this.readTasks(this.watchedConfigFileUri);
-        if (tasksOptionsArray) {
+        const tasksConfigsArray = await this.readTasks(this.watchedConfigFileUri);
+        if (tasksConfigsArray) {
             // only clear tasks map when successful at parsing the config file
             // this way we avoid clearing and re-filling it multiple times if the
             // user is editing the file in the auto-save mode, having momentarily
             // non-parsing JSON.
             this.tasksMap.clear();
 
-            for (const task of tasksOptionsArray) {
+            for (const task of tasksConfigsArray) {
                 this.tasksMap.set(task.label, task);
             }
         }
