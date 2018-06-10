@@ -12,7 +12,6 @@ import { TaskConfiguration } from '@theia/task/lib/common';
 import { WorkspaceService } from '@theia/workspace/lib/browser';
 import { NpmTaskConfiguration, NPM_TASK_TYPE } from './task-protocol';
 
-/** Reads the scripts from the root package.json and provides it as Task Configurations. */
 @injectable()
 export class NpmTaskProvider implements TaskProvider {
 
@@ -22,6 +21,7 @@ export class NpmTaskProvider implements TaskProvider {
     @inject(FileSystem)
     protected readonly fileSystem: FileSystem;
 
+    /** Reads the scripts from the root package.json and provides it as the Task Configurations. */
     async provideTasks(): Promise<TaskConfiguration[]> {
         const content = await this.resolveRootPackageJsonContent();
         if (!content) {
@@ -33,17 +33,12 @@ export class NpmTaskProvider implements TaskProvider {
         const scripts = packageJSON.scripts;
         for (const script in scripts) {
             if (scripts.hasOwnProperty(script)) {
-                const providedTask: NpmTaskConfiguration = {
+                const taskConfig: NpmTaskConfiguration = {
                     type: NPM_TASK_TYPE,
                     label: `${script}`,
-                    script: script,
-                    processType: 'terminal',
-                    processOptions: {
-                        command: `npm`,
-                        args: ['run', script]
-                    }
+                    script: script
                 };
-                tasks.push(providedTask);
+                tasks.push(taskConfig);
             }
         }
         return tasks;

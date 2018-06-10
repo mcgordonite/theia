@@ -14,5 +14,6 @@ import { NpmTaskResolver } from './npm-task-resolver';
 export default new ContainerModule(bind => {
     bind(NpmTaskProvider).toSelf().inSingletonScope();
     bind(NpmTaskResolver).toSelf().inSingletonScope();
-    bind(TaskContribution).to(NpmTaskContribution).inSingletonScope();
+    bind(NpmTaskContribution).toSelf().inSingletonScope();
+    bind(TaskContribution).toService(NpmTaskContribution);
 });
