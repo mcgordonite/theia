@@ -5,10 +5,11 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
+import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as cp from 'child_process';
-import { ApplicationPackage, ApplicationPackageOptions } from "@theia/application-package";
-import { WebpackGenerator, FrontendGenerator, BackendGenerator } from "./generator";
+import { ApplicationPackage, ApplicationPackageOptions } from '@theia/application-package';
+import { WebpackGenerator, FrontendGenerator, BackendGenerator } from './generator';
 import { ApplicationProcess } from './application-process';
 
 export class ApplicationPackageManager {
@@ -25,15 +26,15 @@ export class ApplicationPackageManager {
     constructor(options: ApplicationPackageOptions) {
         this.pck = new ApplicationPackage(options);
         this.process = new ApplicationProcess(this.pck, options.projectPath);
-        this.__process = new ApplicationProcess(this.pck, `${__dirname}/..`);
+        this.__process = new ApplicationProcess(this.pck, path.join(__dirname, '..'));
         this.webpack = new WebpackGenerator(this.pck);
         this.backend = new BackendGenerator(this.pck);
         this.frontend = new FrontendGenerator(this.pck);
     }
 
-    protected async remove(path: string): Promise<void> {
-        if (await fs.pathExists(path)) {
-            await fs.remove(path);
+    protected async remove(fsPath: string): Promise<void> {
+        if (await fs.pathExists(fsPath)) {
+            await fs.remove(fsPath);
         }
     }
 
@@ -68,11 +69,11 @@ export class ApplicationPackageManager {
     }
 
     async startElectron(args: string[]): Promise<void> {
-        return this.__process.bunyan(
-            this.__process.spawnBin('electron', [this.pck.frontend('electron-main.js'), ...args], {
-                stdio: [0, 'pipe', 'pipe']
-            })
-        );
+        const child = this.__process.spawnBin('electron', [this.pck.frontend('electron-main.js'), ...args], {
+            stdio: [0, 'pipe', 'pipe']
+        });
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
     }
 
     async startBrowser(args: string[]): Promise<void> {
@@ -89,9 +90,9 @@ export class ApplicationPackageManager {
             const inspectArg = mainArgs.splice(inspectIndex, 1)[0];
             options.execArgv = ['--nolazy', inspectArg];
         }
-        return this.__process.bunyan(
-            this.__process.fork(this.pck.backend('main.js'), mainArgs, options)
-        );
+        const child = this.__process.fork(this.pck.backend('main.js'), mainArgs, options);
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
     }
 
 }

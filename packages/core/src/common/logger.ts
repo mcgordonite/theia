@@ -27,8 +27,7 @@ export namespace LogLevel {
         [LogLevel.WARN, 'warn'],
         [LogLevel.INFO, 'info'],
         [LogLevel.DEBUG, 'debug'],
-        [LogLevel.TRACE, 'trace'],
-
+        [LogLevel.TRACE, 'trace']
     ]);
 
     export function toString(level: LogLevel): string | undefined {
@@ -283,9 +282,6 @@ export class Logger implements ILogger {
 
     /**
      * Build a new Logger.
-     *
-     * @param options - The options to build the logger with, see the
-     * bunyan child method documentation for more information.
      */
     constructor(
         @inject(ILoggerServer) protected readonly server: ILoggerServer,

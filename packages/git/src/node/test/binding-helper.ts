@@ -10,8 +10,6 @@ import { Git } from '../../common/git';
 import { DugiteGit } from '../dugite-git';
 import { bindGit, GitBindingOptions } from '../git-backend-module';
 import { bindLogger } from '@theia/core/lib/node/logger-backend-module';
-import { ILoggerServer } from '@theia/core/lib/common/logger-protocol';
-import { ConsoleLoggerServer } from '@theia/core/lib/common/console-logger-server';
 import { NoSyncRepositoryManager } from '.././test/no-sync-repository-manager';
 
 // tslint:disable-next-line:no-any
@@ -19,7 +17,6 @@ export function initializeBindings(): { container: Container, bind: any } {
     const container = new Container();
     const bind = container.bind.bind(container);
     bindLogger(bind);
-    container.rebind(ILoggerServer).to(ConsoleLoggerServer).inSingletonScope();
     return { container, bind };
 }
 
