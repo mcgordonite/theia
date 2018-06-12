@@ -10,7 +10,8 @@ import { CommandRegistry } from '../common/command';
 import { KeyCode, KeySequence } from './keys';
 import { ContributionProvider } from '../common/contribution-provider';
 import { ILogger } from "../common/logger";
-import { StatusBarAlignment, StatusBar } from './status-bar/status-bar';
+import { StatusBarAlignment } from './status-bar/status-bar-view';
+import { StatusBar } from './status-bar/status-bar';
 import { isOSX } from '../common/os';
 
 export enum KeybindingScope {

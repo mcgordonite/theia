@@ -7,9 +7,10 @@
 
 import { injectable, inject } from 'inversify';
 import { DisposableCollection } from '@theia/core';
-import { FrontendApplicationContribution, FrontendApplication, StatusBar, StatusBarAlignment } from '@theia/core/lib/browser';
+import { FrontendApplicationContribution, FrontendApplication, StatusBar } from '@theia/core/lib/browser';
 import { EditorCommands, EditorManager, EditorWidget } from '@theia/editor/lib/browser';
 import { MonacoEditor } from './monaco-editor';
+import { StatusBarAlignment } from '@theia/core/lib/browser/status-bar/status-bar-view';
 
 @injectable()
 export class MonacoStatusBarContribution implements FrontendApplicationContribution {

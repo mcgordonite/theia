@@ -10,7 +10,8 @@ import { ILogger } from '../common/logger';
 import { Endpoint } from './endpoint';
 import { Event, Emitter } from '../common/event';
 import { FrontendApplicationContribution, DefaultFrontendApplicationContribution } from './frontend-application';
-import { StatusBar, StatusBarAlignment } from './status-bar/status-bar';
+import { StatusBarAlignment } from './status-bar/status-bar-view';
+import { StatusBar } from './status-bar/status-bar';
 
 /**
  * Service for listening on backend connection changes.

@@ -8,7 +8,8 @@
 import { EditorManager } from './editor-manager';
 import { TextEditor } from './editor';
 import { injectable, inject } from 'inversify';
-import { StatusBarAlignment, StatusBar } from '@theia/core/lib/browser/status-bar/status-bar';
+import { StatusBarAlignment } from '@theia/core/lib/browser/status-bar/status-bar-view';
+import { StatusBar } from '@theia/core/lib/browser/status-bar/status-bar';
 import { Position } from 'vscode-languageserver-types';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { Languages } from '@theia/languages/lib/common';

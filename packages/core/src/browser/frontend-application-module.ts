@@ -36,7 +36,8 @@ import { LabelParser } from './label-parser';
 import { LabelProvider, LabelProviderContribution, DefaultUriLabelProviderContribution } from "./label-provider";
 import {
     PreferenceProviders, PreferenceProvider,
-    PreferenceScope, PreferenceService, PreferenceServiceImpl } from './preferences';
+    PreferenceScope, PreferenceService, PreferenceServiceImpl
+} from './preferences';
 import { ContextMenuRenderer } from './context-menu-renderer';
 import { ThemingCommandContribution, ThemeService } from './theming';
 import { ConnectionStatusService, FrontendConnectionStatusService, ApplicationConnectionStatusContribution } from './connection-status-service';

@@ -7,13 +7,14 @@
 import { injectable, inject } from 'inversify';
 import URI from '@theia/core/lib/common/uri';
 import { DisposableCollection, CommandRegistry, MenuModelRegistry } from '@theia/core';
-import { AbstractViewContribution, StatusBar, StatusBarAlignment, DiffUris, StatusBarEntry } from '@theia/core/lib/browser';
+import { AbstractViewContribution, StatusBar, DiffUris } from '@theia/core/lib/browser';
 import { EditorManager, EditorWidget, EditorOpenerOptions, EditorContextMenu, EDITOR_CONTEXT_MENU } from '@theia/editor/lib/browser';
 import { GitFileChange, GitFileStatus } from '../common';
 import { GitWidget } from './git-widget';
 import { GitRepositoryTracker } from './git-repository-tracker';
 import { GitQuickOpenService } from './git-quick-open-service';
 import { GitSyncService } from './git-sync-service';
+import { StatusBarAlignment, StatusBarEntry } from '@theia/core/lib/browser/status-bar/status-bar-view';
 
 export const GIT_WIDGET_FACTORY_ID = 'git';
 
@@ -128,7 +129,8 @@ export class GitViewContribution extends AbstractViewContribution<GitWidget> {
                     dirty = '*';
                 }
             }
-            this.statusBar.setElement(GitViewContribution.GIT_REPOSITORY_STATUS, {
+            const bla = this.statusBar;
+            bla.setElement(GitViewContribution.GIT_REPOSITORY_STATUS, {
                 text: `$(code-fork) ${branch}${dirty}`,
                 alignment: StatusBarAlignment.LEFT,
                 priority: 101,

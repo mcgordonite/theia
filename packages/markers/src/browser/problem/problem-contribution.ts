@@ -7,7 +7,8 @@
 
 import { injectable, inject } from 'inversify';
 import { FrontendApplication } from '@theia/core/lib/browser';
-import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser/status-bar/status-bar';
+import { StatusBar } from '@theia/core/lib/browser/status-bar/status-bar';
+import { StatusBarAlignment } from '@theia/core/lib/browser/status-bar/status-bar-view';
 import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
 import { PROBLEM_KIND } from '../../common/problem-marker';
 import { ProblemManager, ProblemStat } from './problem-manager';
