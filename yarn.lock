@@ -2921,9 +2921,9 @@ dtrace-provider@~0.8:
   dependencies:
     nan "^2.3.3"
 
-dugite-extra@0.0.1-alpha.22:
-  version "0.0.1-alpha.22"
-  resolved "https://registry.yarnpkg.com/dugite-extra/-/dugite-extra-0.0.1-alpha.22.tgz#adda956ad757952199e9ab8d1bd1710d6d0bd0ec"
+dugite-extra@0.0.1-alpha.23:
+  version "0.0.1-alpha.23"
+  resolved "https://registry.yarnpkg.com/dugite-extra/-/dugite-extra-0.0.1-alpha.23.tgz#9a227a59fc8edf6b95b54b4810de2aaa3abe13a1"
   dependencies:
     byline "^5.0.0"
     dugite "1.42.0"
@@ -8807,9 +8807,9 @@ tslint-language-service@^0.9.9:
   dependencies:
     mock-require "^2.0.2"
 
-tslint@^5.7.0:
-  version "5.9.1"
-  resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.9.1.tgz#1255f87a3ff57eb0b0e1f0e610a8b4748046c9ae"
+tslint@^5.10.0:
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.10.0.tgz#11e26bccb88afa02dd0d9956cae3d4540b5f54c3"
   dependencies:
     babel-code-frame "^6.22.0"
     builtin-modules "^1.1.1"
