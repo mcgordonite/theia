@@ -34,14 +34,17 @@ export class StatusBarImpl extends ReactWidget implements StatusBar {
     ) {
         super();
         this.id = 'theia-statusBar';
-        this.viewElement = <StatusBarView
-            // TODO if we want access to the API of the component we need set the viewComponent. Is there a better way like this?
-            ref={comp => {
-                this.viewComponent = comp;
-            }}
-            commands={commands}
-            entryService={entryService}
-            applicationStateService={applicationStateService} />;
+    }
+
+    protected widgetData(): ReactWidget.WidgetData<StatusBarView.Props> {
+        return {
+            props: {
+                commands: this.commands,
+                entryService: this.entryService,
+                applicationStateService: this.applicationStateService
+            },
+            component: StatusBarView
+        };
     }
 
     async setElement(id: string, entry: StatusBarEntry): Promise<void> {

@@ -9,10 +9,11 @@ import * as React from "react";
 import { open, DISABLED_CLASS, OpenerService } from '@theia/core/lib/browser';
 import { Extension } from '../common';
 import { ExtensionUri } from './extension-uri';
+import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 
 export namespace ExtensionView {
     export interface Props {
-        ready: boolean
+        ready: () => boolean
         searchHandler: () => void
         openerService: OpenerService
         buttonHandler: (extension: Extension) => void
@@ -24,24 +25,14 @@ export namespace ExtensionView {
 
 export class ExtensionView extends React.Component<ExtensionView.Props, ExtensionView.State> {
 
+    protected creator = ReactWidget.ElementCreators;
+
     constructor(props: ExtensionView.Props) {
         super(props);
 
         this.state = {
             extensions: []
         };
-    }
-
-    protected div(attrs: object, content: React.ReactNode): JSX.Element {
-        return React.createElement("div", attrs, content);
-    }
-
-    protected input(attrs: object, content?: React.ReactNode): JSX.Element {
-        return React.createElement("input", attrs, content);
-    }
-
-    protected i(attrs: object, content?: React.ReactNode): JSX.Element {
-        return React.createElement("input", attrs, content);
     }
 
     setExtensions(extensions: Extension[]) {
@@ -51,28 +42,28 @@ export class ExtensionView extends React.Component<ExtensionView.Props, Extensio
     }
 
     render(): JSX.Element {
-        if (this.props.ready) {
+        if (this.props.ready()) {
             return <React.Fragment>{[this.renderSearchField(), this.renderExtensionList()]}</React.Fragment>;
         } else {
-            const spinner = this.div({ className: 'fa fa-spinner fa-pulse fa-3x fa-fw' }, '');
-            return this.div({ className: 'spinnerContainer' }, spinner);
+            const spinner = this.creator.div({ className: 'fa fa-spinner fa-pulse fa-3x fa-fw' }, '');
+            return this.creator.div({ className: 'spinnerContainer' }, spinner);
         }
     }
 
     protected renderSearchField(): JSX.Element {
-        const searchField = this.input({
+        const searchField = this.creator.input({
             id: 'extensionSearchField',
             type: 'text',
             placeholder: 'Search theia extensions',
-            onkeyup: this.props.searchHandler
+            onKeyUp: this.props.searchHandler
         });
 
-        const innerContainer = this.div({
+        const innerContainer = this.creator.div({
             id: 'extensionSearchFieldContainer',
             className: 'flexcontainer'
         }, [searchField]);
 
-        const container = this.div({
+        const container = this.creator.div({
             id: 'extensionSearchContainer',
             className: 'flexcontainer'
         }, [innerContainer]);
@@ -87,29 +78,29 @@ export class ExtensionView extends React.Component<ExtensionView.Props, Extensio
             theList.push(container);
         });
 
-        return this.div({
+        return this.creator.div({
             id: 'extensionListContainer'
         }, theList);
     }
 
     protected renderExtension(extension: Extension): JSX.Element {
-        const name = this.div({
+        const name = this.creator.div({
             className: 'extensionName noWrapInfo'
         }, extension.name);
 
-        const version = this.div({
+        const version = this.creator.div({
             className: 'extensionVersion'
         }, extension.version);
 
-        const author = this.div({
+        const author = this.creator.div({
             className: 'extensionAuthor noWrapInfo flexcontainer'
         }, extension.author);
 
-        const description = this.div({
+        const description = this.creator.div({
             className: 'extensionDescription noWrapInfo'
         }, extension.description);
 
-        const extensionButtonContainer = !extension.dependent ? this.div({
+        const extensionButtonContainer = !extension.dependent ? this.creator.div({
             className: 'extensionButtonContainer flexcontainer'
         }, this.createButton(extension)) : 'installed via ' + extension.dependent;
 
@@ -119,9 +110,9 @@ export class ExtensionView extends React.Component<ExtensionView.Props, Extensio
             this.renderRow(description),
             this.renderRow(author, extensionButtonContainer));
 
-        return this.div({
+        return this.creator.div({
             className: this.createExtensionClassName(extension),
-            onclick: () => open(this.props.openerService, ExtensionUri.toUri(extension.name))
+            onClick: () => open(this.props.openerService, ExtensionUri.toUri(extension.name))
         }, leftColumn);
     }
 
@@ -134,13 +125,13 @@ export class ExtensionView extends React.Component<ExtensionView.Props, Extensio
     }
 
     protected renderRow(...children: React.ReactNode[]): JSX.Element {
-        return this.div({
+        return this.creator.div({
             className: 'row flexcontainer'
         }, children);
     }
 
     protected renderColumn(additionalClass?: string, ...children: JSX.Element[]): JSX.Element {
-        return this.div({
+        return this.creator.div({
             className: 'column flexcontainer ' + additionalClass
         }, children);
     }
@@ -155,14 +146,14 @@ export class ExtensionView extends React.Component<ExtensionView.Props, Extensio
             }
         }
 
-        const content = extension.busy ? this.i({ className: 'fa fa-spinner fa-pulse fa-fw' }) : btnLabel;
+        const content = extension.busy ? this.creator.i({ className: 'fa fa-spinner fa-pulse fa-fw' }) : btnLabel;
 
-        const btn = this.div({
+        const btn = this.creator.div({
             className: 'theia-button extensionButton' +
                 (extension.busy ? ' working' : '') + ' ' +
                 (extension.installed && !extension.busy ? ' installed' : '') + ' ' +
                 (extension.outdated && !extension.busy ? ' outdated' : ''),
-            onclick: (event: Event) => {
+            onClick: (event: Event) => {
                 this.props.buttonHandler(extension);
                 event.stopPropagation();
             }

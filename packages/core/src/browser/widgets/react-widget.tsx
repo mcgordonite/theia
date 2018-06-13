@@ -6,6 +6,7 @@
  */
 
 import * as ReactDOM from "react-dom";
+import * as React from "react";
 import { injectable, postConstruct } from "inversify";
 import { DisposableCollection, Disposable } from "../../common";
 import { BaseWidget, Message } from "./widget";
@@ -23,19 +24,54 @@ export abstract class ReactWidget extends BaseWidget {
         this.toDispose.push(Disposable.create(() => {
             ReactDOM.unmountComponentAtNode(this.node);
         }));
+        this.setComponent = this.setComponent.bind(this);
+    }
+
+    protected setComponent(comp: any) {
+        this.viewComponent = comp || undefined;
     }
 
     protected onUpdateRequest(msg: Message): void {
         super.onUpdateRequest(msg);
-        if (this.viewElement) {
-            ReactDOM.render(this.viewElement, this.node);
-        } else {
-            throw "viewElement is not set";
-        }
+
+        ReactDOM.render(this.getElement(), this.node);
     }
+
+    protected getElement(): React.ReactElement<{}> {
+        const data = this.widgetData();
+        const props = Object.assign({ ref: this.setComponent }, data.props);
+        return React.createElement(data.component, props);
+    }
+
+    protected abstract widgetData(): ReactWidget.WidgetData<{}>;
 
     @postConstruct()
     protected init() {
         this.update();
+    }
+}
+
+export namespace ReactWidget {
+    export interface WidgetData<P> {
+        props: P
+        component: React.ComponentClass
+    }
+
+    export namespace ElementCreators {
+        export function div(attrs: object, ...content: React.ReactNode[]): JSX.Element {
+            return React.createElement("div", attrs, content);
+        }
+
+        export function input(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("input", attrs, content);
+        }
+
+        export function i(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("input", attrs, content);
+        }
+
+        export function h2(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("h2", attrs, content);
+        }
     }
 }

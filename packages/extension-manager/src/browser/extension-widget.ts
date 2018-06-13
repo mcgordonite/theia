@@ -12,7 +12,6 @@ import { OpenerService } from '@theia/core/lib/browser';
 import { Extension, ExtensionManager } from '../common';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { ExtensionView } from './extension-view';
-import * as React from "react";
 
 @injectable()
 export class ExtensionWidget extends ReactWidget {
@@ -23,6 +22,8 @@ export class ExtensionWidget extends ReactWidget {
     protected readonly toDisposeOnFetch = new DisposableCollection();
     protected readonly toDisposeOnSearch = new DisposableCollection();
     protected ready = false;
+
+    protected viewComponent: ExtensionView;
 
     protected searchHandler = () => {
         this.toDisposeOnSearch.dispose();
@@ -46,6 +47,19 @@ export class ExtensionWidget extends ReactWidget {
         }
     }
 
+    protected widgetData(): ReactWidget.WidgetData<ExtensionView.Props> {
+        return {
+            props: {
+                ready: this.isReady,
+                searchHandler: this.searchHandler,
+                openerService: this.openerService,
+                buttonHandler: this.buttonHandler
+            },
+            component: ExtensionView
+        };
+    }
+
+
     constructor(
         @inject(ExtensionManager) protected readonly extensionManager: ExtensionManager,
         @inject(OpenerService) protected readonly openerService: OpenerService
@@ -58,14 +72,10 @@ export class ExtensionWidget extends ReactWidget {
         this.update();
         this.fetchExtensions();
         this.toDispose.push(extensionManager.onDidChange(() => this.update()));
+    }
 
-        this.viewElement = <ExtensionView
-            ref={comp => this.viewComponent = comp}
-            ready={this.ready}
-            searchHandler={this.searchHandler}
-            openerService={this.openerService}
-            buttonHandler={this.buttonHandler}
-        />;
+    protected isReady(): boolean {
+        return this.ready;
     }
 
     protected onActivateRequest(msg: Message) {
@@ -92,7 +102,9 @@ export class ExtensionWidget extends ReactWidget {
             this.toDispose.push(this.toDisposeOnFetch);
             this.extensions = query ? extensions : extensions.filter(e => !e.dependent);
             this.ready = true;
-            this.update();
+            if (this.viewComponent) {
+                this.viewComponent.setExtensions(extensions);
+            }
         });
     }
 
