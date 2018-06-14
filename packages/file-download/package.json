@@ -1,0 +1,60 @@
+{
+  "name": "@theia/file-download",
+  "version": "0.3.11",
+  "description": "Theia - File Download Extension",
+  "dependencies": {
+    "@theia/core": "^0.3.11",
+    "@theia/filesystem": "^0.3.11",
+    "@theia/navigator": "^0.3.11",
+    "@theia/workspace": "^0.3.11",
+    "@types/body-parser": "^1.17.0",
+    "@types/mime-types": "^2.1.0",
+    "@types/rimraf": "^2.0.2",
+    "@types/uuid": "^3.4.3",
+    "body-parser": "^1.18.3",
+    "http-status-codes": "^1.3.0",
+    "mime-types": "^2.1.18",
+    "rimraf": "^2.6.2",
+    "uuid": "^3.2.1",
+    "zip-dir": "^1.0.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/file-download-frontend-module",
+      "backend": "lib/node/file-download-backend-module"
+    }
+  ],
+  "keywords": [
+    "theia-extension"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theia-ide/theia.git"
+  },
+  "bugs": {
+    "url": "https://github.com/theia-ide/theia/issues"
+  },
+  "homepage": "https://github.com/theia-ide/theia",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "theiaext clean",
+    "build": "theiaext build",
+    "watch": "theiaext watch",
+    "test": "theiaext test",
+    "docs": "theiaext docs"
+  },
+  "devDependencies": {
+    "@theia/ext-scripts": "^0.3.11"
+  },
+  "nyc": {
+    "extends": "../../configs/nyc.json"
+  }
+}

@@ -12,6 +12,7 @@
     "@theia/editor": "^0.3.11",
     "@theia/editorconfig": "^0.3.11",
     "@theia/extension-manager": "^0.3.11",
+    "@theia/file-download": "^0.3.11",
     "@theia/file-search": "^0.3.11",
     "@theia/filesystem": "^0.3.11",
     "@theia/git": "^0.3.11",
