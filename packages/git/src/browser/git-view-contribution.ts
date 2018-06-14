@@ -15,6 +15,7 @@ import { GitRepositoryTracker } from './git-repository-tracker';
 import { GitQuickOpenService } from './git-quick-open-service';
 import { GitSyncService } from './git-sync-service';
 import { StatusBarAlignment, StatusBarEntry } from '@theia/core/lib/browser/status-bar/status-bar-view';
+import { GitView } from './git-view';
 
 export const GIT_WIDGET_FACTORY_ID = 'git';
 
@@ -144,16 +145,16 @@ export class GitViewContribution extends AbstractViewContribution<GitWidget> {
     registerMenus(menus: MenuModelRegistry): void {
         super.registerMenus(menus);
         [GIT_COMMANDS.FETCH, GIT_COMMANDS.PULL, GIT_COMMANDS.PUSH, GIT_COMMANDS.MERGE].forEach(command =>
-            menus.registerMenuAction(GitWidget.ContextMenu.OTHER_GROUP, {
+            menus.registerMenuAction(GitView.ContextMenu.OTHER_GROUP, {
                 commandId: command.id,
                 label: command.label.slice('Git: '.length)
             })
         );
-        menus.registerMenuAction(GitWidget.ContextMenu.COMMIT_GROUP, {
+        menus.registerMenuAction(GitView.ContextMenu.COMMIT_GROUP, {
             commandId: GIT_COMMANDS.COMMIT_AMEND.id,
             label: 'Commit (Amend)'
         });
-        menus.registerMenuAction(GitWidget.ContextMenu.COMMIT_GROUP, {
+        menus.registerMenuAction(GitView.ContextMenu.COMMIT_GROUP, {
             commandId: GIT_COMMANDS.COMMIT_SIGN_OFF.id,
             label: 'Commit (Signed Off)'
         });

@@ -28,7 +28,9 @@ export abstract class ReactWidget extends BaseWidget {
     }
 
     protected setComponent(comp: any) {
-        this.viewComponent = comp || undefined;
+        if (comp) {
+            this.viewComponent = comp;
+        }
     }
 
     protected onUpdateRequest(msg: Message): void {
@@ -62,16 +64,36 @@ export namespace ReactWidget {
             return React.createElement("div", attrs, content);
         }
 
+        export function span(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("span", attrs, content);
+        }
+
         export function input(attrs: object, content?: React.ReactNode): JSX.Element {
             return React.createElement("input", attrs, content);
         }
 
         export function i(attrs: object, content?: React.ReactNode): JSX.Element {
-            return React.createElement("input", attrs, content);
+            return React.createElement("i", attrs, content);
+        }
+
+        export function img(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("img", attrs, content);
+        }
+
+        export function a(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("a", attrs, content);
         }
 
         export function h2(attrs: object, content?: React.ReactNode): JSX.Element {
             return React.createElement("h2", attrs, content);
+        }
+
+        export function textarea(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("textarea", attrs, content);
+        }
+
+        export function button(attrs: object, content?: React.ReactNode): JSX.Element {
+            return React.createElement("button", attrs, content);
         }
     }
 }

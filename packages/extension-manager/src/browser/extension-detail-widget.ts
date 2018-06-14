@@ -8,7 +8,7 @@
 import { Extension, ResolvedExtension } from '../common/extension-manager';
 import { Message } from '@phosphor/messaging/lib';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
-import { ExtensionDetailView } from '@theia/extension-manager/lib/browser/extension-detail-view';
+import { ExtensionDetailView } from './extension-detail-view';
 
 export class ExtensionDetailWidget extends ReactWidget {
 

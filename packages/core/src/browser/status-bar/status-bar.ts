@@ -10,7 +10,6 @@ import { LabelParser } from '../label-parser';
 import { injectable, inject } from 'inversify';
 import { FrontendApplicationStateService } from '../frontend-application-state';
 import { ReactWidget } from '../widgets/react-widget';
-import * as React from "react";
 import { StatusBarView, StatusBarEntry } from '../status-bar/status-bar-view';
 
 export const STATUSBAR_WIDGET_FACTORY_ID = 'statusBar';

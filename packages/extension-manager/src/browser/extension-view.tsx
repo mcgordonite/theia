@@ -43,7 +43,7 @@ export class ExtensionView extends React.Component<ExtensionView.Props, Extensio
 
     render(): JSX.Element {
         if (this.props.ready()) {
-            return <React.Fragment>{[this.renderSearchField(), this.renderExtensionList()]}</React.Fragment>;
+            return <React.Fragment>{this.renderSearchField()}{this.renderExtensionList()}</React.Fragment>;
         } else {
             const spinner = this.creator.div({ className: 'fa fa-spinner fa-pulse fa-3x fa-fw' }, '');
             return this.creator.div({ className: 'spinnerContainer' }, spinner);
@@ -61,12 +61,12 @@ export class ExtensionView extends React.Component<ExtensionView.Props, Extensio
         const innerContainer = this.creator.div({
             id: 'extensionSearchFieldContainer',
             className: 'flexcontainer'
-        }, [searchField]);
+        }, searchField);
 
         const container = this.creator.div({
             id: 'extensionSearchContainer',
             className: 'flexcontainer'
-        }, [innerContainer]);
+        }, innerContainer);
 
         return container;
     }
