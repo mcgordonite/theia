@@ -177,6 +177,7 @@ export class Emitter<T> {
         }
         const count = this._callbacks.length;
         if (count > maxListeners) {
+            // tslint:disable-next-line:no-console
             console.warn(new Error(`Possible Emitter memory leak detected. ${maxListeners} exit listeners added. Use event.maxListeners to increase limit`));
         }
     }

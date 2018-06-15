@@ -614,7 +614,7 @@ export class MiniBrowser extends BaseWidget {
                 }));
             } catch (e) {
                 this.hideLoadIndicator();
-                console.log(e);
+                this.logger.error(e);
             }
         }
     }

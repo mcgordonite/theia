@@ -38,6 +38,7 @@ if (job) {
     job().then(() =>
         process.exit(0),
         reason => {
+            // tslint:disable-next-line:no-console
             console.error(`Test worker: '${id}' failed`, reason);
             process.exit(1);
         }

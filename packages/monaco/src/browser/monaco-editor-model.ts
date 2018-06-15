@@ -153,6 +153,7 @@ export class MonacoEditorModel implements ITextEditorModel, TextEditorDocument {
             try {
                 await operation();
             } catch (e) {
+                // tslint:disable-next-line:no-console
                 console.error(e);
             }
         });

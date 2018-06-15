@@ -11,9 +11,6 @@ import { LoggerWatcher } from '../common/logger-watcher';
 import { LogLevelCliContribution } from './logger-cli-contribution';
 import { ILoggerServer, ILoggerClient } from '../common/logger-protocol';
 
-const originalConsoleLog = console.log;
-const originalConsoleError = console.error;
-
 @injectable()
 export class ConsoleLoggerServer implements ILoggerServer {
 
@@ -54,7 +51,7 @@ export class ConsoleLoggerServer implements ILoggerServer {
     async log(name: string, logLevel: number, message: string, params: any[]): Promise<void> {
         const configuredLogLevel = await this.getLogLevel(name);
         if (logLevel >= configuredLogLevel) {
-            const channel = logLevel === LogLevel.ERROR || logLevel === LogLevel.FATAL ? originalConsoleError : originalConsoleLog;
+            const channel = logLevel === LogLevel.ERROR || logLevel === LogLevel.FATAL ? console.error : console.log;
             const severity = `${(LogLevel.strings.get(logLevel) || 'unknown').toUpperCase()}`;
             channel(`${name} ${severity}`, message, ...params);
         }

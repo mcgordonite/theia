@@ -16,6 +16,7 @@ import { Message } from '@phosphor/messaging';
 import { IDragEvent } from '@phosphor/dragdrop';
 import { RecursivePartial } from '../../common';
 import { Saveable } from '../saveable';
+import { ILogger } from '../../common/logger';
 import { StatusBarImpl, StatusBarEntry, StatusBarAlignment } from '../status-bar/status-bar';
 import { SidePanelHandler, SidePanel, SidePanelHandlerFactory, TheiaDockPanel } from './side-panel-handler';
 import { TabBarRendererFactory, TabBarRenderer, SHELL_TABBAR_CONTEXT_MENU, ScrollableTabBar } from './tab-bars';
@@ -151,7 +152,8 @@ export class ApplicationShell extends Widget {
         @inject(SidePanelHandlerFactory) sidePanelHandlerFactory: () => SidePanelHandler,
         @inject(SplitPositionHandler) protected splitPositionHandler: SplitPositionHandler,
         @inject(FrontendApplicationStateService) protected readonly applicationStateService: FrontendApplicationStateService,
-        @inject(ApplicationShellOptions) @optional() options: RecursivePartial<ApplicationShell.Options> = {}
+        @inject(ApplicationShellOptions) @optional() options: RecursivePartial<ApplicationShell.Options> = {},
+        @inject(ILogger) protected logger: ILogger
     ) {
         super(options as Widget.IOptions);
         this.addClass(APPLICATION_SHELL_CLASS);
@@ -619,7 +621,7 @@ export class ApplicationShell extends Widget {
      */
     addWidget(widget: Widget, options: ApplicationShell.WidgetOptions) {
         if (!widget.id) {
-            console.error('Widgets added to the application shell must have a unique id property.');
+            this.logger.error('Widgets added to the application shell must have a unique id property.');
             return;
         }
         switch (options.area) {
@@ -793,7 +795,7 @@ export class ApplicationShell extends Widget {
     private checkActivation(widget: Widget): Widget {
         window.requestAnimationFrame(() => {
             if (this.activeWidget !== widget) {
-                console.warn("Widget was activated, but did not accept focus: " + widget.id);
+                this.logger.warn("Widget was activated, but did not accept focus: " + widget.id);
             }
         });
         return widget;

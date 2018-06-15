@@ -19,6 +19,7 @@ export function rebuild(target: 'electron' | 'browser', modules: string[]) {
             [dependency: string]: string
         } = {};
         for (const module of modulesToProcess) {
+            // tslint:disable-next-line:no-console
             console.log("Processing " + module);
             const src = path.join(nodeModulesPath, module);
             if (fs.existsSync(src)) {
@@ -47,6 +48,7 @@ export function rebuild(target: 'electron' | 'browser', modules: string[]) {
         }
     } else if (target === 'browser' && fs.existsSync(browserModulesPath)) {
         for (const moduleName of fs.readdirSync(browserModulesPath)) {
+            // tslint:disable-next-line:no-console
             console.log("Reverting " + moduleName);
             const src = path.join(browserModulesPath, moduleName);
             const dest = path.join(nodeModulesPath, moduleName);
@@ -55,6 +57,7 @@ export function rebuild(target: 'electron' | 'browser', modules: string[]) {
         }
         fs.removeSync(browserModulesPath);
     } else {
+        // tslint:disable-next-line:no-console
         console.log('native node modules are already rebuilt for ' + target);
     }
 }

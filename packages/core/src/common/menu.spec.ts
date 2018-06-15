@@ -8,6 +8,7 @@
 import { CommandContribution, CommandRegistry } from './command';
 import { CompositeMenuNode, MenuContribution, MenuModelRegistry } from './menu';
 import * as chai from "chai";
+import { MockLogger } from './test/mock-logger';
 
 const expect = chai.expect;
 
@@ -56,7 +57,7 @@ describe('menu-model-registry', () => {
 });
 
 function createMenuRegistry(menuContrib: MenuContribution, commandContrib: CommandContribution) {
-    const cmdReg = new CommandRegistry({ getContributions: () => [commandContrib] });
+    const cmdReg = new CommandRegistry({ getContributions: () => [commandContrib] }, new MockLogger());
     cmdReg.onStart();
     const menuReg = new MenuModelRegistry({ getContributions: () => [menuContrib] }, cmdReg);
     menuReg.onStart();

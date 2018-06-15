@@ -30,7 +30,7 @@
       "severity": "warning",
       "options": true
     },
-    "no-console": false,
+    "no-console": true,
     "no-construct": {
       "severity": "warning",
       "options": true

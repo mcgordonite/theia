@@ -6,8 +6,6 @@
  */
 
 import { expect } from 'chai';
-import { MockLogger } from './test/mock-logger';
-import { setRootLogger, unsetRootLogger } from './logger';
 
 // tslint:disable:no-unused-expression
 
@@ -23,17 +21,6 @@ describe('logger', () => {
 
     it('window is not defined safe', () => {
         expect(() => { typeof window !== 'undefined'; }).to.not.throw(ReferenceError);
-    });
-
-    it('setting the root logger should not throw an error when the window is not defined', () => {
-        expect(() => {
-            try {
-                setRootLogger(new MockLogger());
-            } finally {
-                unsetRootLogger();
-            }
-        }
-        ).to.not.throw(ReferenceError);
     });
 
 });

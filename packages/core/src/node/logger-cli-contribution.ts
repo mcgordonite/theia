@@ -75,6 +75,7 @@ export class LogLevelCliContribution implements CliContribution {
                 await this.slurpLogConfigFile(filename);
                 await this.watchLogConfigFile(filename);
             } catch (e) {
+                // tslint:disable-next-line:no-console
                 console.error(`Error reading log config file ${filename}: ${e}`);
             }
         }
@@ -93,6 +94,7 @@ export class LogLevelCliContribution implements CliContribution {
                     }
                 }
             } catch (e) {
+                // tslint:disable-next-line:no-console
                 console.error(`Error reading log config file ${filename}: ${e}`);
             }
         }).then((watcher: nsfw.NSFW) => {
@@ -124,6 +126,7 @@ export class LogLevelCliContribution implements CliContribution {
             this._defaultLogLevel = newDefaultLogLevel;
             this._logLevels = newLogLevels;
 
+            // tslint:disable-next-line:no-console
             console.log(`Successfully read new log config from ${filename}.`);
         } catch (e) {
             throw new Error(`Error reading log config file ${filename}: ${e.message}`);

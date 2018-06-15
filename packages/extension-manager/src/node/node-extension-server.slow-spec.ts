@@ -14,6 +14,7 @@ import extensionNodeTestContainer from './test/extension-node-test-container';
 import { ApplicationProject } from './application-project';
 
 process.on('unhandledRejection', (reason, promise) => {
+    // tslint:disable-next-line:no-console
     console.error(reason);
     throw reason;
 });

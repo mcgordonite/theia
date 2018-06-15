@@ -45,56 +45,13 @@ export namespace LogLevel {
     }
 }
 
-type ConsoleLog = typeof console.log;
-type ConsoleInfo = typeof console.info;
-type ConsoleWarn = typeof console.warn;
-type ConsoleError = typeof console.error;
-
-let originalConsoleLog: ConsoleLog;
-let originalConsoleInfo: ConsoleInfo;
-let originalConsoleWarn: ConsoleWarn;
-let originalConsoleError: ConsoleError;
-
 /* This is to be initialized from container composition root. It can be used outside of the inversify context.  */
 export let logger: ILogger;
 
 export const rootLoggerName: string = 'root';
 
-/**
- * Counterpart of the `#setRootLogger(ILogger)`. Restores the `console.xxx` bindings to the original one.
- * Invoking has no side-effect if `setRootLogger` was not called before. Multiple function invocation has
- * no side-effect either.
- */
-export function unsetRootLogger() {
-    if (logger !== undefined) {
-        console.log = originalConsoleLog;
-        console.info = originalConsoleInfo;
-        console.warn = originalConsoleWarn;
-        console.error = originalConsoleError;
-        (<any>logger) = undefined;
-    }
-}
-
 export function setRootLogger(aLogger: ILogger) {
-    if (logger === undefined) {
-        originalConsoleLog = console.log;
-        originalConsoleInfo = console.info;
-        originalConsoleWarn = console.warn;
-        originalConsoleError = console.error;
-    }
     logger = aLogger;
-    const frontend = typeof window !== 'undefined' && typeof (window as any).process === 'undefined';
-    const log = (logLevel: number, consoleLog: ConsoleLog, message?: any, ...optionalParams: any[]) => {
-        aLogger.log(logLevel, message, ...optionalParams);
-        if (frontend) {
-            consoleLog(message, ...optionalParams);
-        }
-    };
-
-    console.log = log.bind(undefined, LogLevel.INFO, console.log);
-    console.info = log.bind(undefined, LogLevel.INFO, console.info);
-    console.warn = log.bind(undefined, LogLevel.WARN, console.warn);
-    console.error = log.bind(undefined, LogLevel.ERROR, console.error);
 }
 
 export type Log = (message: any, ...params: any[]) => void;

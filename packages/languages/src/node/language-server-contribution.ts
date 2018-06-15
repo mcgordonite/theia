@@ -84,18 +84,18 @@ export abstract class BaseLanguageServerContribution implements LanguageServerCo
     }
 
     protected onDidFailSpawnProcess(error: Error): void {
-        console.error(error);
+        this.logger.error(error);
     }
 
     protected logError(data: string | Buffer) {
         if (data) {
-            console.error(`${this.name}: ${data}`);
+            this.logger.error(`${this.name}: ${data}`);
         }
     }
 
     protected logInfo(data: string | Buffer) {
         if (data) {
-            console.info(`${this.name}: ${data}`);
+            this.logger.info(`${this.name}: ${data}`);
         }
     }
 

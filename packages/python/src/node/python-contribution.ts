@@ -5,7 +5,8 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
+import { ILogger } from '@theia/core/lib/common/logger';
 import { BaseLanguageServerContribution, IConnection } from "@theia/languages/lib/node";
 import { PYTHON_LANGUAGE_ID, PYTHON_LANGUAGE_NAME } from '../common';
 
@@ -15,6 +16,9 @@ import { PYTHON_LANGUAGE_ID, PYTHON_LANGUAGE_NAME } from '../common';
  */
 @injectable()
 export class PythonContribution extends BaseLanguageServerContribution {
+
+    @inject(ILogger)
+    protected readonly logger: ILogger;
 
     readonly id = PYTHON_LANGUAGE_ID;
     readonly name = PYTHON_LANGUAGE_NAME;
@@ -29,9 +33,9 @@ export class PythonContribution extends BaseLanguageServerContribution {
 
     protected onDidFailSpawnProcess(error: Error): void {
         super.onDidFailSpawnProcess(error);
-        console.error("Error starting python language server.");
-        console.error("Please make sure it is installed on your system.");
-        console.error("Use the following command: 'pip install python-language-server'");
+        this.logger.error("Error starting python language server.");
+        this.logger.error("Please make sure it is installed on your system.");
+        this.logger.error("Use the following command: 'pip install python-language-server'");
     }
 
 }

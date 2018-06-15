@@ -29,7 +29,9 @@ export class GitLocatorImpl implements GitLocator {
         error?: (message: string, ...args: any[]) => void
     }) {
         this.options = {
+            // tslint:disable-next-line:no-console
             info: (message, ...args) => console.info(message, ...args),
+            // tslint:disable-next-line:no-console
             error: (message, ...args) => console.error(message, ...args),
             ...options
         };

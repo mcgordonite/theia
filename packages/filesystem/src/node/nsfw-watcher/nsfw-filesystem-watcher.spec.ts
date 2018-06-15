@@ -117,5 +117,6 @@ describe("nsfw-filesystem-watcher", function () {
 });
 
 process.on("unhandledRejection", (reason: any) => {
+    // tslint:disable-next-line:no-console
     console.error("Unhandled promise rejection: " + reason);
 });

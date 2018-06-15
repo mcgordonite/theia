@@ -8,6 +8,7 @@
 import { injectable, inject, named } from "inversify";
 import { Disposable, DisposableCollection } from "./disposable";
 import { ContributionProvider } from './contribution-provider';
+import { ILogger } from './logger';
 
 /**
  * A command is a unique identifier of a function
@@ -84,8 +85,9 @@ export class CommandRegistry implements CommandService {
     protected readonly _handlers: { [id: string]: CommandHandler[] } = {};
 
     constructor(
-        @inject(ContributionProvider) @named(CommandContribution)
-        protected readonly contributionProvider: ContributionProvider<CommandContribution>
+        @inject(ContributionProvider) @named(CommandContribution) protected readonly contributionProvider: ContributionProvider<CommandContribution>,
+        @inject(ILogger) protected readonly logger: ILogger
+
     ) { }
 
     onStart(): void {
@@ -102,7 +104,7 @@ export class CommandRegistry implements CommandService {
      */
     registerCommand(command: Command, handler?: CommandHandler): Disposable {
         if (this._commands[command.id]) {
-            console.warn(`A command ${command.id} is already registered.`);
+            this.logger.warn(`A command ${command.id} is already registered.`);
             return Disposable.NULL;
         }
         if (handler) {

@@ -347,6 +347,7 @@ function computeDirtyDiff(previous: string[], modified: string[]) {
         getLineContent: line => {
             const value = previous[line];
             if (value === undefined) {
+                // tslint:disable-next-line:no-console
                 console.log(undefined);
             }
             return value;
@@ -357,6 +358,7 @@ function computeDirtyDiff(previous: string[], modified: string[]) {
         getLineContent: line => {
             const value = modified[line];
             if (value === undefined) {
+                // tslint:disable-next-line:no-console
                 console.log(undefined);
             }
             return value;

@@ -28,6 +28,7 @@ class ContainerBasedContributionProvider<T extends object> implements Contributi
                 try {
                     this.services = this.container.getAll(this.serviceIdentifier);
                 } catch (error) {
+                    // tslint:disable-next-line:no-console
                     console.error(error);
                     this.services = [];
                 }

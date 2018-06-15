@@ -5,6 +5,7 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
+// tslint:disable:no-console
 import * as yargs from 'yargs';
 import { ApplicationPackageTarget } from '@theia/application-package';
 import { ApplicationPackageManager, rebuild } from '@theia/application-manager';
@@ -42,7 +43,7 @@ function rebuildCommand(command: string, target: ApplicationPackageTarget): yarg
     };
 }
 
-(function() {
+(function () {
     const projectPath = process.cwd();
     const manager = new ApplicationPackageManager({ projectPath });
     const target = manager.pck.target;

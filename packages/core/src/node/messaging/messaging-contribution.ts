@@ -15,6 +15,7 @@ import { createWebSocketConnection } from 'vscode-ws-jsonrpc/lib/socket/connecti
 import { IConnection } from 'vscode-ws-jsonrpc/lib/server/connection';
 import * as launch from 'vscode-ws-jsonrpc/lib/server/launch';
 import { ContributionProvider, ConnectionHandler } from '../../common';
+import { ILogger } from '../../common/logger';
 import { WebSocketChannel } from '../../common/messaging/web-socket-channel';
 import { BackendApplicationContribution } from "../backend-application";
 import { MessagingService } from './messaging-service';
@@ -24,6 +25,9 @@ import Route = require('route-parser');
 
 @injectable()
 export class MessagingContribution implements BackendApplicationContribution, MessagingService {
+
+    @inject(ILogger)
+    protected readonly logger: ILogger;
 
     @inject(ContributionProvider) @named(ConnectionHandler)
     protected readonly handlers: ContributionProvider<ConnectionHandler>;
@@ -93,7 +97,7 @@ export class MessagingContribution implements BackendApplicationContribution, Me
     protected handleConnection(socket: ws, request: http.IncomingMessage): void {
         const pathname = request.url && url.parse(request.url).pathname;
         if (pathname && !this.wsHandlers.route(pathname, socket)) {
-            console.error('Cannot find a ws handler for the path: ' + pathname);
+            this.logger.error('Cannot find a ws handler for the path: ' + pathname);
         }
     }
 
@@ -108,7 +112,7 @@ export class MessagingContribution implements BackendApplicationContribution, Me
                     channel.ready();
                     channels.set(id, channel);
                 } else {
-                    console.error('Cannot find a service for the path: ' + path);
+                    this.logger.error('Cannot find a service for the path: ' + path);
                 }
             } else {
                 const { id } = message;
@@ -119,7 +123,7 @@ export class MessagingContribution implements BackendApplicationContribution, Me
                     }
                     channel.handleMessage(message);
                 } else {
-                    console.error('The ws channel does not exist', id);
+                    this.logger.error('The ws channel does not exist', id);
                 }
             }
         });
@@ -169,6 +173,7 @@ export namespace MessagingContribution {
                         return result;
                     }
                 } catch (e) {
+                    // tslint:disable-next-line:no-console
                     console.error(e);
                 }
             }

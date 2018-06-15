@@ -11,6 +11,7 @@ import { TextDocumentContentChangeDelta } from '../editor';
 import { MockNavigationLocationUpdater } from './test/mock-navigation-location-updater';
 
 // tslint:disable:no-unused-expression
+// tslint:disable:no-console
 
 describe('navigation-location-updater', () => {
 

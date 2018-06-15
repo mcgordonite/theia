@@ -77,6 +77,7 @@ export namespace ContentLines {
                     if (index >= 0 && index < target.length) {
                         const value = target.getLineContent(index);
                         if (value === undefined) {
+                            // tslint:disable-next-line:no-console
                             console.log(target);
                         }
                         return value;

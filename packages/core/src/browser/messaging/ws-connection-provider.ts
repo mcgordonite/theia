@@ -46,6 +46,7 @@ export class WebSocketConnectionProvider {
             if (channel) {
                 channel.handleMessage(message);
             } else {
+                // tslint:disable-next-line:no-console
                 console.error('The ws channel does not exist', message.id);
             }
         };

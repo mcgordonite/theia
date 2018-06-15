@@ -48,6 +48,7 @@ export class DisposableCollection implements Disposable {
             try {
                 this.disposables.pop()!.dispose();
             } catch (e) {
+                // tslint:disable-next-line:no-console
                 console.error(e);
             }
         }

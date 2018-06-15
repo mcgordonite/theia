@@ -46,6 +46,7 @@ export namespace Resource {
         try {
             await resource.saveContentChanges(context.changes, context.options);
         } catch (e) {
+            // tslint:disable-next-line:no-console
             console.error(e);
             return false;
         }

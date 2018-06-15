@@ -5,6 +5,7 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
+// tslint:disable:no-console
 import * as cluster from 'cluster';
 import { createIpcEnv } from '../messaging/ipc-protocol';
 import { RemoteServer, createRemoteServer } from './cluster-protocol';
