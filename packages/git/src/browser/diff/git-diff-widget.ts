@@ -6,15 +6,16 @@
  */
 
 import { inject, injectable, postConstruct } from "inversify";
-import { h } from "@phosphor/virtualdom";
 import URI from "@theia/core/lib/common/uri";
-import { VirtualRenderer, StatefulWidget, SELECTED_CLASS, DiffUris } from "@theia/core/lib/browser";
+import { StatefulWidget, DiffUris } from "@theia/core/lib/browser";
 import { EditorManager, EditorOpenerOptions, EditorWidget, DiffNavigatorProvider, DiffNavigator } from "@theia/editor/lib/browser";
 import { GitFileChange, GitFileStatus, Git, WorkingDirectoryStatus } from '../../common';
 import { GitWatcher } from "../../common";
 import { GIT_RESOURCE_SCHEME } from '../git-resource';
 import { GitNavigableListWidget } from "../git-navigable-list-widget";
 import { GitFileChangeNode } from "../git-widget";
+import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
+import { GitDiffView } from "@theia/git/lib/browser/diff/git-diff-view";
 
 // tslint:disable:no-null-keyword
 
@@ -24,6 +25,7 @@ export class GitDiffWidget extends GitNavigableListWidget<GitFileChangeNode> imp
 
     protected fileChangeNodes: GitFileChangeNode[];
     protected options: Git.Options.Diff;
+    protected viewComponent: GitDiffView;
 
     protected gitStatus: WorkingDirectoryStatus | undefined;
 
@@ -35,7 +37,7 @@ export class GitDiffWidget extends GitNavigableListWidget<GitFileChangeNode> imp
     constructor() {
         super();
         this.id = GIT_DIFF;
-        this.scrollContainer = "git-diff-list-container";
+
         this.title.label = "Diff";
 
         this.addClass('theia-git');
@@ -43,11 +45,30 @@ export class GitDiffWidget extends GitNavigableListWidget<GitFileChangeNode> imp
 
     @postConstruct()
     protected init() {
+        super.init();
         this.toDispose.push(this.gitWatcher.onGitEvent(async gitEvent => {
             if (this.options) {
                 this.setContent(this.options);
             }
         }));
+    }
+
+    protected widgetData(): ReactWidget.WidgetData<GitDiffView.Props> {
+        return {
+            component: GitDiffView,
+            props: {
+                getStatusCaption: this.getStatusCaption,
+                navigateLeft: this.navigateLeft,
+                navigateRight: this.navigateRight,
+                relativePath: this.relativePath,
+                revealChange: this.revealChange,
+                selectNode: this.selectNode,
+                fileChangeNodes: this.fileChangeNodes,
+                fromRevision: this.fromRevision,
+                options: this.options,
+                toRevision: this.toRevision
+            }
+        };
     }
 
     protected get toRevision() {
@@ -81,6 +102,7 @@ export class GitDiffWidget extends GitNavigableListWidget<GitFileChangeNode> imp
                 });
             }
             this.fileChangeNodes = fileChangeNodes;
+            this.gitNodes = this.fileChangeNodes;
             this.update();
         }
     }
@@ -98,131 +120,6 @@ export class GitDiffWidget extends GitNavigableListWidget<GitFileChangeNode> imp
         this.fileChangeNodes = oldState['fileChangeNodes'];
         this.options = oldState['options'];
         this.update();
-    }
-
-    protected render(): h.Child {
-        this.gitNodes = this.fileChangeNodes;
-        const commitishBar = this.renderDiffListHeader();
-        const fileChangeList = this.renderFileChangeList();
-        return h.div({ className: "git-diff-container" }, VirtualRenderer.flatten([commitishBar, fileChangeList]));
-    }
-
-    protected renderDiffListHeader(): h.Child {
-        return this.doRenderDiffListHeader(
-            this.renderPathHeader(),
-            this.renderRevisionHeader(),
-            this.renderToolbar()
-        );
-    }
-    protected doRenderDiffListHeader(...children: h.Child[]): h.Child {
-        return h.div({ className: "diff-header" }, ...children);
-    }
-    protected renderHeaderRow({ name, value, classNames }: { name: h.Child, value: h.Child, classNames?: string[] }): h.Child {
-        if (value === null) {
-            return null;
-        }
-        const className = ['header-row', ...(classNames || [])].join(' ');
-        return h.div({ className },
-            h.div({ className: 'theia-header' }, name),
-            h.div({ className: 'header-value' }, value));
-    }
-
-    protected renderPathHeader(): h.Child {
-        return this.renderHeaderRow({
-            name: 'path',
-            value: this.renderPath()
-        });
-    }
-    protected renderPath(): h.Child {
-        if (this.options.uri) {
-            const path = this.relativePath(this.options.uri);
-            if (path.length > 0) {
-                return '/' + path;
-            }
-        }
-        return null;
-    }
-
-    protected renderRevisionHeader(): h.Child {
-        return this.renderHeaderRow({
-            name: 'revision: ',
-            value: this.renderRevision()
-        });
-    }
-    protected renderRevision(): h.Child {
-        if (!this.fromRevision) {
-            return null;
-        }
-        if (typeof this.fromRevision === 'string') {
-            return this.fromRevision;
-        }
-        return (this.toRevision || 'HEAD') + '~' + this.fromRevision;
-    }
-
-    protected renderToolbar(): h.Child {
-        return this.doRenderToolbar(
-            this.renderNavigationLeft(),
-            this.renderNavigationRight()
-        );
-    }
-    protected doRenderToolbar(...children: h.Child[]) {
-        return this.renderHeaderRow({
-            classNames: ['space-between'],
-            name: 'Files changed',
-            value: h.div({ className: 'lrBtns' }, ...children)
-        });
-    }
-
-    protected renderNavigationLeft(): h.Child {
-        return h.span({
-            className: "fa fa-arrow-left",
-            title: "Previous Change",
-            onclick: () => this.navigateLeft()
-        });
-    }
-    protected renderNavigationRight(): h.Child {
-        return h.span({
-            className: "fa fa-arrow-right",
-            title: "Next Change",
-            onclick: () => this.navigateRight()
-        });
-    }
-
-    protected renderFileChangeList(): h.Child {
-        const files: h.Child[] = [];
-        for (const fileChange of this.fileChangeNodes) {
-            const fileChangeElement: h.Child = this.renderGitItem(fileChange);
-            files.push(fileChangeElement);
-        }
-        return h.div({ className: "listContainer", id: this.scrollContainer }, ...files);
-    }
-
-    protected renderGitItem(change: GitFileChangeNode): h.Child {
-        const iconSpan = h.span({ className: change.icon + ' file-icon' });
-        const nameSpan = h.span({ className: 'name' }, change.label + ' ');
-        const pathSpan = h.span({ className: 'path' }, change.description);
-        const elements = [];
-        elements.push(h.div({
-            title: change.caption,
-            className: 'noWrapInfo',
-            onclick: () => {
-                this.selectNode(change);
-            },
-            ondblclick: () => {
-                this.revealChange(change);
-            }
-        }, iconSpan, nameSpan, pathSpan));
-        if (change.extraIconClassName) {
-            elements.push(h.div({
-                title: change.caption,
-                className: change.extraIconClassName
-            }));
-        }
-        elements.push(h.div({
-            title: change.caption,
-            className: 'status staged ' + GitFileStatus[change.status].toLowerCase()
-        }, this.getStatusCaption(change.status, true).charAt(0)));
-        return h.div({ className: `gitItem noselect${change.selected ? ' ' + SELECTED_CLASS : ''}` }, ...elements);
     }
 
     protected navigateRight(): void {

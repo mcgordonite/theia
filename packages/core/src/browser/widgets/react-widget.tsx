@@ -36,10 +36,10 @@ export abstract class ReactWidget extends BaseWidget {
     protected onUpdateRequest(msg: Message): void {
         super.onUpdateRequest(msg);
 
-        ReactDOM.render(this.getElement(), this.node);
+        ReactDOM.render(this.createElement(), this.node);
     }
 
-    protected getElement(): React.ReactElement<{}> {
+    protected createElement(): React.ReactElement<{}> {
         const data = this.widgetData();
         const props = Object.assign({ ref: this.setComponent }, data.props);
         return React.createElement(data.component, props);

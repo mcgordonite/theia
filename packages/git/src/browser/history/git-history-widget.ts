@@ -21,6 +21,7 @@ import { GitCommitDetails } from "./git-commit-detail-widget";
 import { GitNavigableListWidget } from "../git-navigable-list-widget";
 import { GitFileChangeNode } from "../git-widget";
 import { Disposable } from "vscode-jsonrpc";
+import { ReactWidget } from "@theia/core/lib/browser/widgets/react-widget";
 
 export interface GitCommitNode extends GitCommitDetails {
     fileChanges?: GitFileChange[];
@@ -38,6 +39,7 @@ export type GitHistoryListNode = (GitCommitNode | GitFileChangeNode);
 
 @injectable()
 export class GitHistoryWidget extends GitNavigableListWidget<GitHistoryListNode> implements StatefulWidget {
+
     protected options: Git.Options.Log;
     protected commits: GitCommitNode[];
     protected ready: boolean;
@@ -57,6 +59,10 @@ export class GitHistoryWidget extends GitNavigableListWidget<GitHistoryListNode>
         this.scrollContainer = 'git-history-list-container';
         this.title.label = "Git History";
         this.addClass('theia-git');
+    }
+
+    protected widgetData(): ReactWidget.WidgetData<{}> {
+        throw new Error("Method not implemented.");
     }
 
     protected onAfterAttach(msg: Message) {
