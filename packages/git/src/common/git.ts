@@ -254,6 +254,12 @@ export namespace Git {
 
             }
 
+            export interface CheckoutSHA {
+                readonly sha: string;
+
+                readonly force: boolean;
+            }
+
         }
 
         /**
@@ -800,6 +806,10 @@ export namespace GitUtils {
     // tslint:disable-next-line:no-any
     export function isWorkingTreeFileCheckout(arg: any | undefined): arg is Git.Options.Checkout.WorkingTreeFile {
         return !!arg && ('paths' in arg);
+    }
+
+    export function isSHACheckout(arg: any | undefined): arg is Git.Options.Checkout.CheckoutSHA {
+        return !!arg && ('sha' in arg);
     }
 
     /**

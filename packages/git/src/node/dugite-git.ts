@@ -29,7 +29,7 @@ import { createCommit } from 'dugite-extra/lib/command/commit';
 import { stage, unstage } from 'dugite-extra/lib/command/stage';
 import { reset, GitResetMode } from 'dugite-extra/lib/command/reset';
 import { getTextContents, getBlobContents } from 'dugite-extra/lib/command/show';
-import { checkoutBranch, checkoutPaths } from 'dugite-extra/lib/command/checkout';
+import { checkout, checkoutBranch, checkoutPaths } from 'dugite-extra/lib/command/checkout';
 import { createBranch, deleteBranch, renameBranch, listBranch } from 'dugite-extra/lib/command/branch';
 import { IStatusResult, IAheadBehind, AppFileStatus, WorkingDirectoryStatus as DugiteStatus, FileChange as DugiteFileChange } from 'dugite-extra/lib/model/status';
 import { Branch as DugiteBranch } from 'dugite-extra/lib/model/branch';
@@ -392,7 +392,7 @@ export class DugiteGit implements Git {
         });
     }
 
-    checkout(repository: Repository, options: Git.Options.Checkout.CheckoutBranch | Git.Options.Checkout.WorkingTreeFile): Promise<void> {
+    checkout(repository: Repository, options: Git.Options.Checkout.CheckoutBranch | Git.Options.Checkout.WorkingTreeFile | Git.Options.Checkout.CheckoutSHA): Promise<void> {
         return this.manager.run(repository, () => {
             const repositoryPath = this.getFsPath(repository);
             if (GitUtils.isBranchCheckout(options)) {
@@ -401,6 +401,9 @@ export class DugiteGit implements Git {
             if (GitUtils.isWorkingTreeFileCheckout(options)) {
                 const paths = (Array.isArray(options.paths) ? options.paths : [options.paths]).map(FileUri.fsPath);
                 return checkoutPaths(repositoryPath, paths);
+            }
+            if (GitUtils.isSHACheckout(options)) {
+                return checkout(repositoryPath, [''], options.sha);
             }
             return this.fail(repository, `Unexpected git checkout options: ${options}.`);
         });
