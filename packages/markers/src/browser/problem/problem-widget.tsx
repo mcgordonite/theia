@@ -37,7 +37,7 @@ export class ProblemWidget extends TreeWidget {
         this.id = 'problems';
         this.title.label = 'Problems';
         this.title.caption = 'Problems';
-        this.title.iconClass = 'fa problem-tab-icon'
+        this.title.iconClass = 'fa problem-tab-icon';
         this.title.closable = true;
         this.addClass('theia-marker-container');
 
