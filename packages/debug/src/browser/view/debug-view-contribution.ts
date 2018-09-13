@@ -54,8 +54,9 @@ export class DebugWidget extends Panel {
         super();
         this.id = DEBUG_FACTORY_ID;
         this.title.label = 'Debug';
+        this.title.caption = 'Debug';
         this.title.closable = true;
-        this.title.iconClass = 'fa fa-bug';
+        this.title.iconClass = 'fa debug-tab-icon';
         this.tabBar = this.createTabBar();
         this.addClass(Styles.DEBUG_PANEL);
     }
