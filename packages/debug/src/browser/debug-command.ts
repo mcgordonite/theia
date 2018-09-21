@@ -30,37 +30,24 @@ export const DEBUG_SESSION_THREAD_CONTEXT_MENU: MenuPath = ['debug-session-threa
 export const DEBUG_VARIABLE_CONTEXT_MENU: MenuPath = ['debug-variable-context-menu'];
 
 export namespace DebugSessionContextMenu {
-    export const STOP = [...DEBUG_SESSION_CONTEXT_MENU, '1_stop'];
+    export const DEBUG_CONTROLS = [...DEBUG_SESSION_CONTEXT_MENU, '1_controls'];
 }
 
 export namespace DebugThreadContextMenu {
-    export const RESUME_THREAD = [...DEBUG_SESSION_THREAD_CONTEXT_MENU, '2_resume'];
-    export const SUSPEND_THREAD = [...RESUME_THREAD, '1_suspend'];
-
-    export const STEPOUT_THREAD = [...DEBUG_SESSION_THREAD_CONTEXT_MENU, '5_stepout'];
-    export const STEPIN_THREAD = [...STEPOUT_THREAD, '4_stepin'];
-    export const STEP_THREAD = [...STEPIN_THREAD, '3_next'];
+    export const DEBUG_PLAYER = [...DEBUG_SESSION_THREAD_CONTEXT_MENU, '2_player'];
+    export const DEBUG_STEPPING = [...DEBUG_SESSION_THREAD_CONTEXT_MENU, '3_stepping'];
 }
 
 export namespace DebugVariableContextMenu {
-    export const MODIFY = [...DEBUG_VARIABLE_CONTEXT_MENU, '1_modify'];
+    export const DEBUG_EDITION = [...DEBUG_VARIABLE_CONTEXT_MENU, '1_edition'];
 }
 
 export namespace DebugMenus {
     export const DEBUG = [...MAIN_MENU_BAR, '4_debug'];
-    export const DEBUG_STOP = [...DEBUG, '2_stop'];
-    export const DEBUG_START = [...DEBUG_STOP, '1_start'];
-
-    export const SUSPEND_ALL_THREADS = [...DEBUG, '4_suspend_all_threads'];
-    export const RESUME_ALL_THREADS = [...SUSPEND_ALL_THREADS, '3_resume_all_threads'];
-
-    export const STEPOUT_THREAD = [...DEBUG, '7_stepout'];
-    export const STEPIN_THREAD = [...STEPOUT_THREAD, '6_stepin'];
-    export const STEP_THREAD = [...STEPIN_THREAD, '5_next'];
-
-    export const ADD_CONFIGURATION = [...DEBUG, '9_add_configuration'];
-    export const OPEN_CONFIGURATION = [...ADD_CONFIGURATION, '8_open_configuration'];
-    export const SHOW_BREAKPOINTS = [...OPEN_CONFIGURATION, '10_breakpoinst'];
+    export const DEBUG_CONTROLS = [...DEBUG, '1_controls'];
+    export const DEBUG_THREADS = [...DEBUG, '2_threads'];
+    export const DEBUG_STEPPING = [...DEBUG, '3_stepping'];
+    export const DEBUG_CONFIGURATION = [...DEBUG, '4_configuration'];
 }
 
 export namespace DEBUG_COMMANDS {
@@ -71,36 +58,39 @@ export namespace DEBUG_COMMANDS {
 
     export const STOP = {
         id: 'debug.stop',
-        label: 'Stop'
+        label: 'Stop',
+        iconClass: 'theia-debug-stop'
     };
 
     export const OPEN_CONFIGURATION = {
         id: 'debug.configuration.open',
-        label: 'Open configuration'
+        label: 'Open Configuration'
     };
 
     export const ADD_CONFIGURATION = {
         id: 'debug.configuration.add',
-        label: 'Add configuration'
+        label: 'Add Configuration'
     };
 
     export const SUSPEND_THREAD = {
         id: 'debug.thread.suspend',
-        label: 'Suspend thread'
+        label: 'Suspend Thread'
     };
 
     export const RESUME_THREAD = {
         id: 'debug.thread.resume',
-        label: 'Resume thread'
+        label: 'Resume Thread'
     };
     export const SUSPEND_ALL_THREADS = {
         id: 'debug.thread.suspend.all',
-        label: 'Suspend'
+        label: 'Suspend',
+        iconClass: 'theia-debug-thread-suspend-all'
     };
 
     export const RESUME_ALL_THREADS = {
         id: 'debug.thread.resume.all',
-        label: 'Resume'
+        label: 'Resume',
+        iconClass: 'theia-debug-thread-resume-all'
     };
 
     export const MODIFY_VARIABLE = {
@@ -115,17 +105,20 @@ export namespace DEBUG_COMMANDS {
 
     export const STEP = {
         id: 'debug.thread.next',
-        label: 'Step'
+        label: 'Step',
+        iconClass: 'theia-debug-step-over'
     };
 
     export const STEPIN = {
         id: 'debug.thread.stepin',
-        label: 'Step in'
+        label: 'Step In',
+        iconClass: 'theia-debug-step-in'
     };
 
     export const STEPOUT = {
         id: 'debug.thread.stepout',
-        label: 'Step out'
+        label: 'Step Out',
+        iconClass: 'theia-debug-step-out'
     };
 }
 
@@ -136,75 +129,94 @@ export class DebugCommandHandlers implements MenuContribution, CommandContributi
         @inject(DebugSessionManager) protected readonly debugSessionManager: DebugSessionManager,
         @inject(DebugConfigurationManager) protected readonly debugConfigurationManager: DebugConfigurationManager,
         @inject(DebugSelectionService) protected readonly debugSelectionHandler: DebugSelectionService,
-        @inject(BreakpointsDialog) protected readonly breakpointsDialog: BreakpointsDialog) { }
+        @inject(BreakpointsDialog) protected readonly breakpointsDialog: BreakpointsDialog
+    ) { }
 
     registerMenus(menus: MenuModelRegistry): void {
         menus.registerSubmenu(DebugMenus.DEBUG, 'Debug');
-        menus.registerMenuAction(DebugMenus.DEBUG_START, {
-            commandId: DEBUG_COMMANDS.START.id
+
+        menus.registerMenuAction(DebugMenus.DEBUG_CONTROLS, {
+            commandId: DEBUG_COMMANDS.START.id,
+            order: '1_start',
         });
-        menus.registerMenuAction(DebugMenus.DEBUG_STOP, {
-            commandId: DEBUG_COMMANDS.STOP.id
+        menus.registerMenuAction(DebugMenus.DEBUG_CONTROLS, {
+            commandId: DEBUG_COMMANDS.STOP.id,
+            order: '2_stop',
         });
-        menus.registerMenuAction(DebugMenus.OPEN_CONFIGURATION, {
-            commandId: DEBUG_COMMANDS.OPEN_CONFIGURATION.id
+
+        menus.registerMenuAction(DebugMenus.DEBUG_THREADS, {
+            commandId: DEBUG_COMMANDS.RESUME_ALL_THREADS.id,
+            order: '3_resume_all_threads',
         });
-        menus.registerMenuAction(DebugMenus.ADD_CONFIGURATION, {
-            commandId: DEBUG_COMMANDS.ADD_CONFIGURATION.id
+        menus.registerMenuAction(DebugMenus.DEBUG_THREADS, {
+            commandId: DEBUG_COMMANDS.SUSPEND_ALL_THREADS.id,
+            order: '4_suspend_all_threads',
         });
-        menus.registerMenuAction(DebugSessionContextMenu.STOP, {
-            commandId: DEBUG_COMMANDS.STOP.id
+
+        menus.registerMenuAction(DebugMenus.DEBUG_STEPPING, {
+            commandId: DEBUG_COMMANDS.STEP.id,
+            order: '5_next',
         });
-        menus.registerMenuAction(DebugMenus.STEP_THREAD, {
-            commandId: DEBUG_COMMANDS.STEP.id
+        menus.registerMenuAction(DebugMenus.DEBUG_STEPPING, {
+            commandId: DEBUG_COMMANDS.STEPIN.id,
+            order: '6_stepin',
         });
-        menus.registerMenuAction(DebugMenus.STEPIN_THREAD, {
-            commandId: DEBUG_COMMANDS.STEPIN.id
+        menus.registerMenuAction(DebugMenus.DEBUG_STEPPING, {
+            commandId: DEBUG_COMMANDS.STEPOUT.id,
+            order: '7_stepout',
         });
-        menus.registerMenuAction(DebugMenus.STEPOUT_THREAD, {
-            commandId: DEBUG_COMMANDS.STEPOUT.id
+
+        menus.registerMenuAction(DebugMenus.DEBUG_CONFIGURATION, {
+            commandId: DEBUG_COMMANDS.OPEN_CONFIGURATION.id,
+            order: '8_open_configuration',
         });
-        menus.registerMenuAction(DebugMenus.SUSPEND_ALL_THREADS, {
-            commandId: DEBUG_COMMANDS.SUSPEND_ALL_THREADS.id
+        menus.registerMenuAction(DebugMenus.DEBUG_CONFIGURATION, {
+            commandId: DEBUG_COMMANDS.ADD_CONFIGURATION.id,
+            order: '9_add_configuration',
         });
-        menus.registerMenuAction(DebugMenus.RESUME_ALL_THREADS, {
-            commandId: DEBUG_COMMANDS.RESUME_ALL_THREADS.id
+        menus.registerMenuAction(DebugMenus.DEBUG_CONFIGURATION, {
+            commandId: DEBUG_COMMANDS.SHOW_BREAKPOINTS.id,
+            order: '10_breakpoints',
         });
-        menus.registerMenuAction(DebugMenus.SHOW_BREAKPOINTS, {
-            commandId: DEBUG_COMMANDS.SHOW_BREAKPOINTS.id
+
+        // debug session context
+        menus.registerMenuAction(DebugSessionContextMenu.DEBUG_CONTROLS, {
+            commandId: DEBUG_COMMANDS.STOP.id,
+            order: '1_stop',
         });
-        menus.registerMenuAction(DebugThreadContextMenu.SUSPEND_THREAD, {
-            commandId: DEBUG_COMMANDS.SUSPEND_THREAD.id
+
+        // thread context
+        menus.registerMenuAction(DebugThreadContextMenu.DEBUG_PLAYER, {
+            commandId: DEBUG_COMMANDS.SUSPEND_THREAD.id,
+            order: '1_suspend',
         });
-        menus.registerMenuAction(DebugThreadContextMenu.RESUME_THREAD, {
-            commandId: DEBUG_COMMANDS.RESUME_THREAD.id
+        menus.registerMenuAction(DebugThreadContextMenu.DEBUG_PLAYER, {
+            commandId: DEBUG_COMMANDS.RESUME_THREAD.id,
+            order: '2_resume',
         });
-        menus.registerMenuAction(DebugThreadContextMenu.STEP_THREAD, {
-            commandId: DEBUG_COMMANDS.STEP.id
+        menus.registerMenuAction(DebugThreadContextMenu.DEBUG_STEPPING, {
+            commandId: DEBUG_COMMANDS.STEP.id,
+            order: '3_next',
         });
-        menus.registerMenuAction(DebugThreadContextMenu.STEPIN_THREAD, {
-            commandId: DEBUG_COMMANDS.STEPIN.id
+        menus.registerMenuAction(DebugThreadContextMenu.DEBUG_STEPPING, {
+            commandId: DEBUG_COMMANDS.STEPIN.id,
+            order: '4_stepin',
         });
-        menus.registerMenuAction(DebugThreadContextMenu.STEPOUT_THREAD, {
-            commandId: DEBUG_COMMANDS.STEPOUT.id
+        menus.registerMenuAction(DebugThreadContextMenu.DEBUG_STEPPING, {
+            commandId: DEBUG_COMMANDS.STEPOUT.id,
+            order: '5_stepout',
         });
-        menus.registerMenuAction(DebugVariableContextMenu.MODIFY, {
-            commandId: DEBUG_COMMANDS.MODIFY_VARIABLE.id
+
+        // variable context
+        menus.registerMenuAction(DebugVariableContextMenu.DEBUG_EDITION, {
+            commandId: DEBUG_COMMANDS.MODIFY_VARIABLE.id,
+            order: '1_modify',
         });
     }
 
     registerCommands(registry: CommandRegistry): void {
-        registry.registerCommand(DEBUG_COMMANDS.START);
-        registry.registerHandler(DEBUG_COMMANDS.START.id, {
-            execute: () => {
-                this.debugConfigurationManager.selectConfiguration()
-                    .then(configuration => this.debug.resolveDebugConfiguration(configuration))
-                    .then(configuration => this.debug.start(configuration).then(sessionId => ({ sessionId, configuration })))
-                    .then(({ sessionId, configuration }) => this.debugSessionManager.create(sessionId, configuration))
-                    .catch(error => console.log(error));
-            },
-            isEnabled: () => true,
-            isVisible: () => true
+        registry.registerCommand(DEBUG_COMMANDS.START, {
+            execute: () => this.start()
         });
 
         registry.registerCommand(DEBUG_COMMANDS.STOP);
@@ -392,6 +404,15 @@ export class DebugCommandHandlers implements MenuContribution, CommandContributi
                 return !!selection && !!selection.variable;
             }
         });
+    }
+
+    async start(): Promise<void> {
+        const configuration = await this.debugConfigurationManager.selectConfiguration();
+        if (!configuration) {
+            return;
+        }
+        const session = await this.debug.create(configuration);
+        await this.debugSessionManager.create(session, configuration);
     }
 
     private isSelectedThreadSuspended(): boolean {
