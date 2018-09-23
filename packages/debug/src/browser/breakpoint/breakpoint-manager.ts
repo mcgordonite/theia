@@ -38,6 +38,7 @@ import { BreakpointsApplier } from './breakpoint-applier';
  */
 @injectable()
 export class BreakpointsManager implements FrontendApplicationContribution {
+    protected readonly supportedFilePatterns: string[] = [];
     protected readonly onDidChangeBreakpointsEmitter = new Emitter<void>();
 
     constructor(
@@ -58,6 +59,14 @@ export class BreakpointsManager implements FrontendApplicationContribution {
         this.editorManager.onCreated(widget => this.onEditorCreated(widget.editor));
         this.editorManager.onActiveEditorChanged(widget => this.onActiveEditorChanged(widget));
         this.editorManager.onCurrentEditorChanged(widget => this.onCurrentEditorChanged(widget));
+
+        this.debugService.debugTypes()
+            .then(debugTypes => debugTypes.forEach(debugType =>
+                this.debugService.provideDebugConfigurations(debugType).then(configs =>
+                    configs.forEach(config => config.breakpoints.filePatterns.forEach(pattern =>
+                        this.supportedFilePatterns.push(pattern)))
+                )
+            ));
     }
 
     get onDidChangeBreakpoints(): Event<void> {
@@ -114,7 +123,12 @@ export class BreakpointsManager implements FrontendApplicationContribution {
      */
     private createSourceBreakpoint(debugSession: DebugSession | undefined, editor: TextEditor, position: Position): ExtDebugProtocol.AggregatedBreakpoint {
         const source = DebugUtils.toSource(editor.uri, debugSession);
-        const sessionId = debugSession && debugSession.sessionId;
+        const sessionId = debugSession
+            ? (DebugUtils.checkPattern(source, debugSession.configuration.breakpoints.filePatterns)
+                ? debugSession.sessionId
+                : undefined)
+            : undefined;
+
         return {
             source, sessionId,
             origin: { line: position.line + 1 }
@@ -130,6 +144,7 @@ export class BreakpointsManager implements FrontendApplicationContribution {
 
         const breakpoints = this.breakpointStorage.get(DebugUtils.isSourceBreakpoint)
             .filter(b => b.sessionId === undefined)
+            .filter(b => DebugUtils.checkPattern(b.source!, debugSession.configuration.breakpoints.filePatterns))
             .map(b => {
                 b.sessionId = debugSession.sessionId;
                 b.created = undefined;
@@ -258,7 +273,8 @@ export class BreakpointsManager implements FrontendApplicationContribution {
             switch (event.target.type) {
                 case MouseTargetType.GUTTER_GLYPH_MARGIN:
                 case MouseTargetType.GUTTER_VIEW_ZONE: {
-                    if (event.target.position) {
+                    const source = DebugUtils.toSource(editor.uri, undefined);
+                    if (DebugUtils.checkPattern(source, this.supportedFilePatterns)) {
                         this.toggleBreakpoint(editor, event.target.position);
                     }
                     break;

@@ -26,7 +26,6 @@ import { BreakpointsManager } from '../breakpoint/breakpoint-manager';
 import { ExtDebugProtocol } from '../../common/debug-common';
 import { DebugUtils } from '../debug-utils';
 import { Disposable } from '@theia/core';
-import { DebugStyles } from './base/debug-styles';
 
 /**
  * Is it used to display breakpoints.
@@ -45,20 +44,17 @@ export class DebugBreakpointsWidget extends VirtualWidget {
         this.id = 'debug-breakpoints' + (debugSession ? `-${debugSession.sessionId}` : '');
         this.addClass('theia-debug-entry');
         this.node.setAttribute('tabIndex', '0');
+
     }
 
     @postConstruct()
     protected init() {
-        this.toDispose.push(this.breakpointManager.onDidChangeBreakpoints(() => this.refreshBreakpoints()));
+        this.toDisposeOnDetach.push(this.breakpointManager.onDidChangeBreakpoints(() => this.refreshBreakpoints()));
         if (this.debugSession) {
             const configurationDoneListener = () => this.refreshBreakpoints();
-            const terminatedEventListener = (event: DebugProtocol.TerminatedEvent) => this.onTerminatedEvent(event);
 
             this.debugSession.on('configurationDone', configurationDoneListener);
-            this.debugSession.on('terminated', terminatedEventListener);
-
-            this.toDispose.push(Disposable.create(() => this.debugSession!.removeListener('configurationDone', configurationDoneListener)));
-            this.toDispose.push(Disposable.create(() => this.debugSession!.removeListener('terminated', terminatedEventListener)));
+            this.toDisposeOnDetach.push(Disposable.create(() => this.debugSession!.removeListener('configurationDone', configurationDoneListener)));
         }
     }
 
@@ -89,13 +85,13 @@ export class DebugBreakpointsWidget extends VirtualWidget {
             const item =
                 h.div({
                     id: DebugUtils.makeBreakpointId(breakpoint),
-                    className: DebugStyles.DEBUG_ITEM,
+                    className: Styles.BREAKPOINT_ITEM,
                     onclick: event => {
                         const selected = this.node.getElementsByClassName(SELECTED_CLASS)[0];
                         if (selected) {
-                            selected.className = DebugStyles.DEBUG_ITEM;
+                            selected.className = Styles.BREAKPOINT_ITEM;
                         }
-                        (event.target as HTMLDivElement).className = `${DebugStyles.DEBUG_ITEM} ${SELECTED_CLASS}`;
+                        (event.target as HTMLDivElement).className = `${Styles.BREAKPOINT_ITEM} ${SELECTED_CLASS}`;
 
                         this.onDidClickBreakpointEmitter.fire(breakpoint);
                     },
@@ -106,8 +102,6 @@ export class DebugBreakpointsWidget extends VirtualWidget {
 
         return [header, h.div({ className: Styles.BREAKPOINTS }, items)];
     }
-
-    protected onTerminatedEvent(event: DebugProtocol.TerminatedEvent): void { }
 
     private toDisplayName(breakpoint: ExtDebugProtocol.AggregatedBreakpoint): string {
         if ('origin' in breakpoint) {
@@ -178,5 +172,6 @@ export class BreakpointsDialog extends AbstractDialog<void> {
 
 namespace Styles {
     export const BREAKPOINTS = 'theia-debug-breakpoints';
+    export const BREAKPOINT_ITEM = 'theia-debug-breakpoint-item';
     export const BREAKPOINT_DIALOG = 'theia-debug-breakpoint-dialog';
 }

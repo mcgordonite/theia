@@ -25,7 +25,6 @@ import { injectable, inject, postConstruct } from 'inversify';
 import { DebugSelection } from './debug-selection-service';
 import { SourceOpener, DebugUtils } from '../debug-utils';
 import { Disposable } from '@theia/core';
-import { DebugStyles } from './base/debug-styles';
 
 /**
  * Is it used to display call stack.
@@ -47,19 +46,16 @@ export class DebugStackFramesWidget extends VirtualWidget {
 
     @postConstruct()
     protected init() {
-        this.toDispose.push(this.debugSelection.onDidSelectThread(thread => this.onThreadSelected(thread)));
+        this.toDisposeOnDetach.push(this.debugSelection.onDidSelectThread(thread => this.onThreadSelected(thread)));
 
         const stoppedEventListener = (event: DebugProtocol.StoppedEvent) => this.onStoppedEvent(event);
         const continuedEventListener = (event: DebugProtocol.ContinuedEvent) => this.onContinuedEvent(event);
-        const terminatedEventListener = (event: DebugProtocol.TerminatedEvent) => this.onTerminatedEvent(event);
 
         this.debugSession.on('stopped', stoppedEventListener);
         this.debugSession.on('continued', continuedEventListener);
-        this.debugSession.on('terminated', terminatedEventListener);
 
-        this.toDispose.push(Disposable.create(() => this.debugSession.removeListener('stopped', stoppedEventListener)));
-        this.toDispose.push(Disposable.create(() => this.debugSession.removeListener('continued', continuedEventListener)));
-        this.toDispose.push(Disposable.create(() => this.debugSession.removeListener('terminated', terminatedEventListener)));
+        this.toDisposeOnDetach.push(Disposable.create(() => this.debugSession.removeListener('stopped', stoppedEventListener)));
+        this.toDisposeOnDetach.push(Disposable.create(() => this.debugSession.removeListener('continued', continuedEventListener)));
     }
 
     get frames(): DebugProtocol.StackFrame[] {
@@ -77,7 +73,7 @@ export class DebugStackFramesWidget extends VirtualWidget {
 
         const selectedFrame = this.debugSelection.frame;
         for (const frame of this._frames) {
-            const className = DebugStyles.DEBUG_ITEM + (DebugUtils.isEqual(selectedFrame, frame) ? ` ${SELECTED_CLASS}` : '');
+            const className = Styles.FRAME_ITEM + (DebugUtils.isEqual(selectedFrame, frame) ? ` ${SELECTED_CLASS}` : '');
             const id = this.createId(frame);
 
             const item =
@@ -109,14 +105,14 @@ export class DebugStackFramesWidget extends VirtualWidget {
         if (currentFrame) {
             const element = document.getElementById(this.createId(currentFrame));
             if (element) {
-                element.className = DebugStyles.DEBUG_ITEM;
+                element.className = Styles.FRAME_ITEM;
             }
         }
 
         if (newFrame) {
             const element = document.getElementById(this.createId(newFrame));
             if (element) {
-                element.className = `${DebugStyles.DEBUG_ITEM} ${SELECTED_CLASS}`;
+                element.className = `${Styles.FRAME_ITEM} ${SELECTED_CLASS}`;
             }
         }
 
@@ -129,10 +125,6 @@ export class DebugStackFramesWidget extends VirtualWidget {
 
     private createId(frame?: DebugProtocol.StackFrame): string {
         return `debug-stack-frames-${this.debugSession.sessionId}` + (frame ? `-${frame.id}` : '');
-    }
-
-    protected onTerminatedEvent(event: DebugProtocol.TerminatedEvent): void {
-        this.frames = [];
     }
 
     private onContinuedEvent(event: DebugProtocol.ContinuedEvent): void {
@@ -172,4 +164,5 @@ export class DebugStackFramesWidget extends VirtualWidget {
 
 namespace Styles {
     export const FRAMES = 'theia-debug-frames';
+    export const FRAME_ITEM = 'theia-debug-frame-item';
 }

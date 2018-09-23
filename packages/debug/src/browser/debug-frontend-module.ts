@@ -18,16 +18,17 @@ import { ContainerModule, interfaces, Container } from 'inversify';
 import { DebugCommandHandlers, DEBUG_VARIABLE_CONTEXT_MENU } from './debug-command';
 import { DebugConfigurationManager } from './debug-configuration';
 import {
-    DEBUG_FACTORY_ID,
+    DebugViewContribution,
     DebugWidget,
-    DebugFrontendContribution,
-    DebugWidgetOptions,
-} from './view/debug-frontend-contribution';
+    DEBUG_FACTORY_ID,
+    DebugTargetWidget,
+} from './view/debug-view-contribution';
 import { DebugPath, DebugService } from '../common/debug-common';
 import { MenuContribution } from '@theia/core/lib/common/menu';
 import { CommandContribution } from '@theia/core/lib/common/command';
 import {
     WidgetFactory,
+    bindViewContribution,
     WebSocketConnectionProvider,
     createTreeContainer,
     TreeImpl,
@@ -63,7 +64,6 @@ import { BreakpointsManager } from './breakpoint/breakpoint-manager';
 import { BreakpointStorage } from './breakpoint/breakpoint-marker';
 import { SourceOpener } from './debug-utils';
 import { BreakpointsApplier } from './breakpoint/breakpoint-applier';
-import { DebugToolBar } from './view/debug-toolbar-widget';
 
 export const DEBUG_VARIABLES_PROPS = <TreeProps>{
     ...defaultTreeProps,
@@ -72,9 +72,9 @@ export const DEBUG_VARIABLES_PROPS = <TreeProps>{
 };
 
 export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Unbind, isBound: interfaces.IsBound, rebind: interfaces.Rebind) => {
-    bindDebugSessionManager(bind);
+    bindDebugSession(bind);
     bindBreakpointsManager(bind);
-    bindDebugWidget(bind);
+    bindDebugView(bind);
 
     bind(MenuContribution).to(DebugCommandHandlers);
     bind(CommandContribution).to(DebugCommandHandlers);
@@ -85,19 +85,23 @@ export default new ContainerModule((bind: interfaces.Bind, unbind: interfaces.Un
     bind(ResourceResolver).toService(DebugResourceResolver);
 });
 
-function bindDebugWidget(bind: interfaces.Bind): void {
+function bindDebugView(bind: interfaces.Bind): void {
     bind(DebugWidget).toSelf();
     bind(WidgetFactory).toDynamicValue(context => ({
         id: DEBUG_FACTORY_ID,
-        createWidget: (options: DebugWidgetOptions) => {
-            const container = createDebugTargetContainer(context, options.debugSession);
-            return container.get<DebugWidget>(DebugWidget);
-        }
+        createWidget: () => context.container.get<DebugWidget>(DebugWidget)
     })).inSingletonScope();
 
-    bind(DebugFrontendContribution).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).toDynamicValue(ctx => ctx.container.get(DebugFrontendContribution));
+    bindViewContribution(bind, DebugViewContribution);
+    bind(DebugTargetWidget).toSelf();
     bind(DebugSelectionService).toSelf().inSingletonScope();
+
+    bind<interfaces.Factory<DebugTargetWidget>>('Factory<DebugTargetWidget>').toFactory<DebugTargetWidget>(context =>
+        (debugSession: DebugSession) => {
+            const container = createDebugTargetContainer(context, debugSession);
+            return container.get<DebugTargetWidget>(DebugTargetWidget);
+        }
+    );
 }
 
 function bindBreakpointsManager(bind: interfaces.Bind): void {
@@ -111,7 +115,7 @@ function bindBreakpointsManager(bind: interfaces.Bind): void {
     bind(SourceOpener).toSelf().inSingletonScope();
 }
 
-function bindDebugSessionManager(bind: interfaces.Bind): void {
+function bindDebugSession(bind: interfaces.Bind): void {
     bindContributionProvider(bind, DebugSessionContribution);
     bind(DebugSessionFactory).to(DefaultDebugSessionFactory).inSingletonScope();
     bind(DebugSessionManager).toSelf().inSingletonScope();
@@ -126,7 +130,6 @@ function createDebugTargetContainer(context: interfaces.Context, debugSession: D
     child.bind(DebugSession).toConstantValue(debugSession);
     child.bind(DebugSelection).toConstantValue(selection);
     child.bind(DebugThreadsWidget).toSelf();
-    child.bind(DebugToolBar).toSelf();
     child.bind(DebugStackFramesWidget).toSelf();
     child.bind(DebugBreakpointsWidget).toSelf();
 
