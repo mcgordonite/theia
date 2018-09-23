@@ -16,7 +16,7 @@
 
 import { injectable, inject, named } from 'inversify';
 import { Disposable } from './disposable';
-import { CommandRegistry } from './command';
+import { CommandRegistry, Command } from './command';
 import { ContributionProvider } from './contribution-provider';
 
 export interface MenuAction {
@@ -77,6 +77,47 @@ export class MenuModelRegistry {
             }
             return { dispose: () => { } };
         }
+    }
+
+    /**
+     * Unregister menu item from the registry
+     *
+     * @param item
+     */
+    unregisterMenuAction(item: MenuAction, menuPath?: MenuPath): void;
+    /**
+     * Unregister menu item from the registry
+     *
+     * @param command
+     */
+    unregisterMenuAction(command: Command, menuPath?: MenuPath): void;
+    /**
+     * Unregister menu item from the registry
+     *
+     * @param id
+     */
+    unregisterMenuAction(id: string, menuPath?: MenuPath): void;
+    unregisterMenuAction(itemOrCommandOrId: MenuAction | Command | string, menuPath?: MenuPath): void {
+
+        const isItem = (item: MenuAction | Command | string): item is MenuAction => (<MenuAction>item).commandId !== undefined;
+        const isCommand = (command: MenuAction | Command | string): command is Command => (<Command>command).id !== undefined;
+        const id = isItem(itemOrCommandOrId) ? itemOrCommandOrId.commandId : isCommand(itemOrCommandOrId) ? itemOrCommandOrId.id : itemOrCommandOrId;
+
+        if (menuPath) {
+            const parent = this.findGroup(menuPath);
+            return parent.removeNode(id);
+        }
+
+        // Recurse all menus, removing any menus matching the id
+        const recurse = (root: CompositeMenuNode) => {
+            root.children.forEach(node => {
+                if (node instanceof CompositeMenuNode) {
+                    node.removeNode(id);
+                    recurse(node);
+                }
+            });
+        };
+        recurse(this.root);
     }
 
     protected findGroup(menuPath: MenuPath): CompositeMenuNode {
@@ -145,6 +186,16 @@ export class CompositeMenuNode implements MenuNode {
                 }
             }
         };
+    }
+
+    public removeNode(id: string) {
+        const node = this._children.find(n => n.id === id);
+        if (node) {
+            const idx = this._children.indexOf(node);
+            if (idx >= 0) {
+                this._children.splice(idx, 1);
+            }
+        }
     }
 
     get sortString() {

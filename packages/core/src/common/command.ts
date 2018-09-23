@@ -137,6 +137,28 @@ export class CommandRegistry implements CommandService {
     }
 
     /**
+     * Unregister command from the registry
+     *
+     * @param command
+     */
+    unregisterCommand(command: Command): void;
+    /**
+     * Unregister command from the registry
+     *
+     * @param id
+     */
+    unregisterCommand(id: string): void;
+    unregisterCommand(commandOrId: Command | string): void {
+
+        const isCommand = (command: Command | string): command is Command => (<Command>command).id !== undefined;
+        const id = isCommand(commandOrId) ? commandOrId.id : commandOrId;
+
+        if (this._commands[id]) {
+            delete this._commands[id];
+        }
+    }
+
+    /**
      * Register the given handler for the given command identifier.
      */
     registerHandler(commandId: string, handler: CommandHandler): Disposable {

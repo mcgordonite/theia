@@ -165,6 +165,33 @@ export class KeybindingRegistry {
         this.doRegisterKeybindings(bindings, KeybindingScope.DEFAULT);
     }
 
+    /**
+     * Unregister keybinding from the registry
+     *
+     * @param binding
+     */
+    unregisterKeybinding(binding: Keybinding): void;
+    /**
+     * Unregister keybinding from the registry
+     *
+     * @param key
+     */
+    unregisterKeybinding(key: string): void;
+    unregisterKeybinding(keyOrBinding: Keybinding | string): void {
+
+        const isBinding = (binding: Keybinding | string): binding is Keybinding => (<Keybinding>binding).keybinding !== undefined;
+        const key = isBinding(keyOrBinding) ? keyOrBinding.keybinding : keyOrBinding;
+
+        const keymap = this.keymaps[KeybindingScope.DEFAULT];
+        const bindings = keymap.filter(el => el.keybinding === key);
+        bindings.forEach(binding => {
+            const idx = keymap.indexOf(binding);
+            if (idx >= 0) {
+                keymap.splice(idx, 1);
+            }
+        });
+    }
+
     protected doRegisterKeybindings(bindings: Keybinding[], scope: KeybindingScope = KeybindingScope.DEFAULT) {
         for (const binding of bindings) {
             this.doRegisterKeybinding(binding, scope);
