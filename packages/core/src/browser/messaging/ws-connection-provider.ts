@@ -109,6 +109,33 @@ export class WebSocketConnectionProvider {
         channel.open(handler.path);
     }
 
+    public openChannel2(path: string, handler: (channel: WebSocketChannel) => void, options?: WebSocketOptions): void {
+        if (this.socket.readyState === WebSocket.OPEN) {
+            this.doOpenChannel(path, handler, options);
+        } else {
+            const openChannel = () => {
+                this.socket.removeEventListener('open', openChannel);
+                this.openChannel2(path, handler, options);
+            };
+            this.socket.addEventListener('open', openChannel);
+        }
+    }
+
+    protected doOpenChannel(path: string, handler: (channel: WebSocketChannel) => void, options?: WebSocketOptions): void {
+        const id = this.channelIdSeq++;
+        const channel = this.createChannel(id);
+        this.channels.set(id, channel);
+        channel.onClose(() => {
+            this.channels.delete(channel.id);
+            const { reconnecting } = { reconnecting: true, ...options };
+            if (reconnecting) {
+                this.openChannel2(path, handler, options);
+            }
+        });
+        channel.onOpen(() => handler(channel));
+        channel.open(path);
+    }
+
     protected createChannel(id: number): WebSocketChannel {
         return new WebSocketChannel(id, content => this.socket.send(content));
     }

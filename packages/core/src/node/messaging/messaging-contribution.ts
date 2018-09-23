@@ -70,6 +70,10 @@ export class MessagingContribution implements BackendApplicationContribution, Me
         });
     }
 
+    wsChannel(spec: string, callback: (params: MessagingService.PathParams, channel: WebSocketChannel) => void): void {
+        return this.channelHandlers.push(spec, (params, channel) => callback(params, channel));
+    }
+
     ws(spec: string, callback: (params: MessagingService.PathParams, socket: ws) => void): void {
         return this.wsHandlers.push(spec, callback);
     }

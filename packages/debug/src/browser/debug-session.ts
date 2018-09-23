@@ -87,7 +87,7 @@ export class DebugSessionImpl extends EventEmitter implements DebugSession {
 
     protected createConnection(): Promise<WebSocketChannel> {
         return new Promise<WebSocketChannel>(resolve =>
-            this.connectionProvider.openChannel(`${DebugAdapterPath}/${this.sessionId}`, channel => {
+            this.connectionProvider.openChannel2(`${DebugAdapterPath}/${this.sessionId}`, channel => {
                 if (this.toDispose.disposed) {
                     channel.close();
                 } else {

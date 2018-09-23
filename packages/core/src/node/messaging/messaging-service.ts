@@ -17,6 +17,7 @@
 import * as ws from 'ws';
 import { MessageConnection } from 'vscode-jsonrpc';
 import { IConnection } from 'vscode-ws-jsonrpc/lib/server/connection';
+import { WebSocketChannel } from '../../common/messaging/web-socket-channel';
 
 export interface MessagingService {
     /**
@@ -29,6 +30,11 @@ export interface MessagingService {
      * A path supports the route syntax: https://github.com/rcs/route-parser#what-can-i-use-in-my-routes.
      */
     forward(path: string, callback: (params: MessagingService.PathParams, connection: IConnection) => void): void;
+    /**
+     * Accept a web socket channel on the given path.
+     * A path supports the route syntax: https://github.com/rcs/route-parser#what-can-i-use-in-my-routes.
+     */
+    wsChannel(path: string, callback: (params: MessagingService.PathParams, socket: WebSocketChannel) => void): void;
     /**
      * Accept a web socket connection on the given path.
      * A path supports the route syntax: https://github.com/rcs/route-parser#what-can-i-use-in-my-routes.
