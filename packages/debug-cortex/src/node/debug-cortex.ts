@@ -95,7 +95,13 @@ export class CortexDebugAdapterContribution implements DebugAdapterContribution 
         cwd: '${workspaceFolder}',
         executable: '',
         interface: 'swd',
-        device: ''
+        device: '',
+        breakpoints: {
+            filePatterns: [
+                '[.]c$',
+                '[.]cpp$'
+            ]
+        }
     },
     {
         name: 'OpenOCD Debug',
@@ -104,7 +110,13 @@ export class CortexDebugAdapterContribution implements DebugAdapterContribution 
         request: 'launch',
         cwd: '${workspaceFolder}',
         executable: '',
-        configFiles: []
+        configFiles: [],
+        breakpoints: {
+            filePatterns: [
+                '[.]c$',
+                '[.]cpp$'
+            ]
+        }
     },
     {
         name: 'ST Link Debug',
@@ -113,7 +125,13 @@ export class CortexDebugAdapterContribution implements DebugAdapterContribution 
         request: 'launch',
         cwd: '${workspaceFolder}',
         executable: '',
-        v1: false
+        v1: false,
+        breakpoints: {
+            filePatterns: [
+                '[.]c$',
+                '[.]cpp$'
+            ]
+        }
     },
     {
         name: 'pyOCD Debug',
@@ -121,7 +139,13 @@ export class CortexDebugAdapterContribution implements DebugAdapterContribution 
         type: this.debugType,
         request: 'launch',
         cwd: '${workspaceFolder}',
-        executable: ''
+        executable: '',
+        breakpoints: {
+            filePatterns: [
+                '[.]c$',
+                '[.]cpp$'
+            ]
+        }
     },
     {
         name: 'Black Magic Probe Debug',
@@ -131,7 +155,13 @@ export class CortexDebugAdapterContribution implements DebugAdapterContribution 
         cwd: '${workspaceFolder}',
         executable: '',
         interface: 'swd',
-        BMPGDBSerialPort: ''
+        BMPGDBSerialPort: '',
+        breakpoints: {
+            filePatterns: [
+                '[.]c$',
+                '[.]cpp$'
+            ]
+        }
     }];
 
     public provideDebugAdapterExecutable(config: DebugConfiguration): DebugAdapterExecutable {
