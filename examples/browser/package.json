@@ -41,6 +41,7 @@
     "@theia/typescript": "^0.3.14",
     "@theia/userstorage": "^0.3.14",
     "@theia/variable-resolver": "^0.3.14",
+    "@theia/workbench": "^0.3.14",
     "@theia/workspace": "^0.3.14"
   },
   "scripts": {
