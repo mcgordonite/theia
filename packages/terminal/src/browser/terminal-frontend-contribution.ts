@@ -21,23 +21,18 @@ import {
     CommandRegistry,
     MenuContribution,
     MenuModelRegistry,
-    isOSX,
-    SelectionService
+    isOSX
 } from '@theia/core/lib/common';
 import {
     CommonMenus, ApplicationShell, KeybindingContribution, KeyCode, Key,
     KeyModifier, KeybindingRegistry
 } from '@theia/core/lib/browser';
 import { WidgetManager } from '@theia/core/lib/browser';
+import { WorkspaceService } from '@theia/workspace/lib/browser';
 import { TERMINAL_WIDGET_FACTORY_ID, TerminalWidgetFactoryOptions } from './terminal-widget-impl';
 import { TerminalKeybindingContexts } from './terminal-keybinding-contexts';
 import { TerminalService } from './base/terminal-service';
 import { TerminalWidgetOptions, TerminalWidget } from './base/terminal-widget';
-import { NavigatorContextMenu } from '@theia/navigator/lib/browser/navigator-contribution';
-import { UriAwareCommandHandler } from '@theia/core/lib/common/uri-command-handler';
-import { FileSystem } from '@theia/filesystem/lib/common';
-import { dirname, normalize } from 'path';
-import URI from '@theia/core/lib/common/uri';
 
 export namespace TerminalCommands {
     export const NEW: Command = {
@@ -48,10 +43,6 @@ export namespace TerminalCommands {
         id: 'terminal:clear',
         label: 'Terminal: Clear'
     };
-    export const TERMINAL_CONTEXT: Command = {
-        id: 'terminal:context',
-        label: 'Open in Terminal'
-    };
 }
 
 @injectable()
@@ -60,8 +51,7 @@ export class TerminalFrontendContribution implements TerminalService, CommandCon
     constructor(
         @inject(ApplicationShell) protected readonly shell: ApplicationShell,
         @inject(WidgetManager) protected readonly widgetManager: WidgetManager,
-        @inject(FileSystem) protected readonly fileSystem: FileSystem,
-        @inject(SelectionService) protected readonly selectionService: SelectionService,
+        @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService
     ) { }
 
     registerCommands(commands: CommandRegistry): void {
@@ -80,33 +70,11 @@ export class TerminalFrontendContribution implements TerminalService, CommandCon
             isEnabled: () => this.shell.activeWidget instanceof TerminalWidget,
             execute: () => (this.shell.activeWidget as TerminalWidget).clearOutput()
         });
-
-        commands.registerCommand(TerminalCommands.TERMINAL_CONTEXT, new UriAwareCommandHandler<URI>(this.selectionService, {
-            execute: async uri => {
-                // Determine folder path of URI
-                let cwd = normalize(uri.path.toString());
-                const stat = await this.fileSystem.getFileStat(cwd);
-                if (!stat) {
-                    return;
-                }
-                if (!stat.isDirectory) {
-                    cwd = dirname(cwd);
-                }
-
-                // Open terminal
-                const termWidget = await this.newTerminal({ cwd });
-                termWidget.start();
-                this.activateTerminal(termWidget);
-            }
-        }));
     }
 
     registerMenus(menus: MenuModelRegistry): void {
         menus.registerMenuAction(CommonMenus.FILE_NEW, {
             commandId: TerminalCommands.NEW.id
-        });
-        menus.registerMenuAction(NavigatorContextMenu.NEW, {
-            commandId: TerminalCommands.TERMINAL_CONTEXT.id
         });
     }
 
