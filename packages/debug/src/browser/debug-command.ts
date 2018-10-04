@@ -257,6 +257,10 @@ export class DebugCommandHandlers implements MenuContribution, CommandContributi
             execute: () => {
                 const debugSession = this.debugSessionManager.getActiveDebugSession();
                 if (debugSession) {
+                    const threadId = this.getSelectedThreadId(debugSession.sessionId);
+                    if (threadId) {
+                        debugSession.resume({ threadId });
+                    }
                     debugSession.resumeAll();
                 }
             },
@@ -277,6 +281,10 @@ export class DebugCommandHandlers implements MenuContribution, CommandContributi
             execute: () => {
                 const debugSession = this.debugSessionManager.getActiveDebugSession();
                 if (debugSession) {
+                    const threadId = this.getSelectedThreadId(debugSession.sessionId);
+                    if (threadId) {
+                        debugSession.pause({ threadId });
+                    }
                     debugSession.pauseAll();
                 }
             },
