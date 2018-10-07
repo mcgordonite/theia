@@ -129,9 +129,9 @@ export interface DebugSessionState {
     allThreadsStopped: boolean | undefined;
 
     /**
-     * Stopped threads Ids.
+     * All thread Ids and whether they are stopped
      */
-    stoppedThreadIds: Set<number>;
+    threadIds: Map<number, boolean>;
 
     /**
      * Debug adapter protocol capabilities.
@@ -228,13 +228,13 @@ export class DebugSessionStateAccumulator implements DebugSessionState {
     isConnected: boolean;
     allThreadsContinued: boolean | undefined;
     allThreadsStopped: boolean | undefined;
-    stoppedThreadIds = new Set<number>();
+    threadIds = new Map<number, boolean>();
     capabilities: DebugProtocol.Capabilities = {};
     sources = new Map<string, DebugProtocol.Source>();
 
     constructor(eventEmitter: NodeJS.EventEmitter, currentState?: DebugSessionState) {
         if (currentState) {
-            this.stoppedThreadIds = new Set(currentState.stoppedThreadIds);
+            this.threadIds = new Map(currentState.threadIds);
             this.sources = new Map(currentState.sources);
             this.isConnected = currentState.isConnected;
             this.allThreadsContinued = currentState.allThreadsContinued;
@@ -260,29 +260,47 @@ export class DebugSessionStateAccumulator implements DebugSessionState {
 
     private onContinued(event: DebugProtocol.ContinuedEvent): void {
         const body = event.body;
-
         this.allThreadsContinued = body.allThreadsContinued;
+
         if (this.allThreadsContinued) {
-            this.stoppedThreadIds.clear();
-        } else {
-            this.stoppedThreadIds.delete(body.threadId);
+            for (const key of this.threadIds.keys()) {
+                this.threadIds.set(key, false);
+            }
+            this.allThreadsStopped = false;
+        }
+
+        if (body.threadId) {
+            this.threadIds.set(body.threadId, false);
         }
     }
 
     private onStopped(event: DebugProtocol.StoppedEvent): void {
         const body = event.body;
-
         this.allThreadsStopped = body.allThreadsStopped;
+
+        if (this.allThreadsStopped) {
+            for (const key of this.threadIds.keys()) {
+                this.threadIds.set(key, true);
+            }
+            this.allThreadsContinued = false;
+        }
+
         if (body.threadId) {
-            this.stoppedThreadIds.add(body.threadId);
+            this.threadIds.set(body.threadId, true);
         }
     }
 
     private onThread(event: DebugProtocol.ThreadEvent): void {
-        switch (event.body.reason) {
-            case 'exited': {
-                this.stoppedThreadIds.delete(event.body.threadId);
-                break;
+        if (event.body.threadId) {
+            switch (event.body.reason) {
+                case 'started': {
+                    this.threadIds.set(event.body.threadId, false);
+                    break;
+                }
+                case 'exited': {
+                    this.threadIds.delete(event.body.threadId);
+                    break;
+                }
             }
         }
     }

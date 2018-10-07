@@ -52,7 +52,7 @@ export class ActiveLineDecorator extends EditorDecorator {
             return;
         }
 
-        for (const threadId of session.state.stoppedThreadIds) {
+        for (const threadId of [...session.state.threadIds].filter(([_threadId, stopped]) => stopped === true).keys()) {
             session.stacks({ threadId, levels: 1 }).then(response => {
                 const frame = response.body.stackFrames[0];
                 if (!frame || !frame.source) {

@@ -116,7 +116,7 @@ export class DebugSessionImpl extends EventEmitter implements DebugSession {
     }
 
     pauseAll(): Promise<DebugProtocol.PauseResponse[]> {
-        return this.threads().then(response => Promise.all(response.body.threads.map((thread: DebugProtocol.Thread) => this.pause({ threadId: thread.id }))));
+        return Promise.all([...this.state.threadIds].filter(([_threadId, stopped]) => stopped === false).map(([threadId, _stopped]) => this.pause({ threadId })));
     }
 
     pause(args: DebugProtocol.PauseArguments): Promise<DebugProtocol.PauseResponse> {
@@ -124,7 +124,7 @@ export class DebugSessionImpl extends EventEmitter implements DebugSession {
     }
 
     resumeAll(): Promise<DebugProtocol.ContinueResponse[]> {
-        return this.threads().then(response => Promise.all(response.body.threads.map((thread: DebugProtocol.Thread) => this.resume({ threadId: thread.id }))));
+        return Promise.all([...this.state.threadIds].filter(([_threadId, stopped]) => stopped === true).map(([threadId, _stopped]) => this.resume({ threadId })));
     }
 
     resume(args: DebugProtocol.ContinueArguments): Promise<DebugProtocol.ContinueResponse> {
@@ -253,7 +253,7 @@ export class DefaultDebugSessionFactory implements DebugSessionFactory {
         const state: DebugSessionState = {
             isConnected: false,
             sources: new Map<string, DebugProtocol.Source>(),
-            stoppedThreadIds: new Set<number>(),
+            threadIds: new Map<number, boolean>(),
             allThreadsContinued: false,
             allThreadsStopped: false,
             capabilities: {}
