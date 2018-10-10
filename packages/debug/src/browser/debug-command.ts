@@ -311,7 +311,15 @@ export class DebugCommandHandlers implements MenuContribution, CommandContributi
                     }
                 }
             },
-            isEnabled: () => this.isSelectedThreadSuspended(),
+            isEnabled: () => {
+                const debugSession = this.debugSessionManager.getActiveDebugSession();
+                if (!debugSession) {
+                    return false;
+                }
+
+                const state = debugSession.state;
+                return !!state.isConnected && !state.allThreadsContinued;
+            },
             isVisible: () => true
         });
 
@@ -326,7 +334,15 @@ export class DebugCommandHandlers implements MenuContribution, CommandContributi
                     }
                 }
             },
-            isEnabled: () => this.isSelectedThreadSuspended(),
+            isEnabled: () => {
+                const debugSession = this.debugSessionManager.getActiveDebugSession();
+                if (!debugSession) {
+                    return false;
+                }
+
+                const state = debugSession.state;
+                return !!state.isConnected && !state.allThreadsContinued;
+            },
             isVisible: () => true
         });
 
@@ -341,7 +357,15 @@ export class DebugCommandHandlers implements MenuContribution, CommandContributi
                     }
                 }
             },
-            isEnabled: () => this.isSelectedThreadSuspended(),
+            isEnabled: () => {
+                const debugSession = this.debugSessionManager.getActiveDebugSession();
+                if (!debugSession) {
+                    return false;
+                }
+
+                const state = debugSession.state;
+                return !!state.isConnected && !state.allThreadsContinued;
+            },
             isVisible: () => true
         });
 
