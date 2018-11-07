@@ -30,6 +30,12 @@
     border: none;
 }
 
+/* Makes perfect-scrollbar look consistent for every browser */
+.theia-TreeContainer .ReactVirtualized__List {
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+}
+
 .theia-TreeContainer {
     height: 100%;
 }
