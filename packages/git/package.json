@@ -15,6 +15,7 @@
     "dugite-extra": "0.1.7",
     "find-git-repositories": "^0.1.0",
     "fs-extra": "^4.0.2",
+    "gitignore-parser": "^0.0.2",
     "moment": "^2.21.0",
     "octicons": "^7.1.0",
     "ts-md5": "^1.2.2"

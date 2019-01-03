@@ -16,7 +16,8 @@
 
 import * as fs from 'fs-extra';
 import * as Path from 'path';
-import { injectable, inject } from 'inversify';
+import { GitIgnoreFile, compile } from 'gitignore-parser';
+import { injectable, inject, postConstruct } from 'inversify';
 import { git } from 'dugite-extra/lib/core/git';
 import { push } from 'dugite-extra/lib/command/push';
 import { pull } from 'dugite-extra/lib/command/pull';
@@ -43,6 +44,9 @@ import {
 import { GitRepositoryManager } from './git-repository-manager';
 import { GitLocator } from './git-locator/git-locator-protocol';
 import { GitExecProvider } from './git-exec-provider';
+import { FileSystemWatcherServer, DidFilesChangedParams, FileChangeType } from '@theia/filesystem/lib/common/filesystem-watcher-protocol';
+import { Disposable, DisposableCollection } from '@theia/core';
+import { FileSystem } from '@theia/filesystem/lib/common';
 
 /**
  * Parsing and converting raw Git output into Git model instances.
@@ -303,9 +307,69 @@ export class DugiteGit implements Git {
     @inject(GitExecProvider)
     protected readonly execProvider: GitExecProvider;
 
+    @inject(FileSystem)
+    protected readonly filesystem: FileSystem;
+
+    @inject(FileSystemWatcherServer)
+    protected readonly fileSystemWatcher: FileSystemWatcherServer;
+
+    protected readonly toDispose = new DisposableCollection();
+
+    protected readonly statusOfRepositories: { [localUri: string]: WorkingDirectoryStatus | undefined; } = {};
+
+    protected readonly gitIgnoreOfRepositories: { [localUri: string]: GitIgnoreFile | undefined; } = {};
+
+    @postConstruct()
+    protected async init() {
+        this.toDispose.push(this.fileSystemWatcher);
+        this.fileSystemWatcher.setClient({
+            onDidFilesChanged: changes => this.onDidFilesChanged(changes)
+        });
+    }
+
+    protected onDidFilesChanged(changes: DidFilesChangedParams): void {
+         // Create a list of the repositories with the longest URIs first.
+         // This ensures that where repositories are nested, the deepest containing repository
+         // will be found first.
+         const sortedRepositories = Object.keys(this.statusOfRepositories)
+            .sort((a, b) => b.length - a.length);
+
+        changes.changes.forEach(change => {
+            const uri = change.uri.toString();
+            for (const repositoryUri of sortedRepositories) {
+                if (uri.startsWith(repositoryUri + '/')) {
+                    const relativePath = uri.substring(repositoryUri.length + 1);
+
+                    if (relativePath === '.gitignore') {
+                        // The .gitignore file itself is changing so we must re-parse it.
+                        this.gitIgnoreOfRepositories[repositoryUri] = undefined;
+                        if (change.type !== FileChangeType.DELETED) {
+                            this.parseGitIgnoreFile(repositoryUri);
+                        }
+                    }
+
+                    const ignoreFile = this.gitIgnoreOfRepositories[repositoryUri];
+
+                    if (ignoreFile === undefined || ignoreFile.accepts(relativePath)) {
+                        this.statusOfRepositories[repositoryUri] = undefined;
+                    }
+                    break;
+                }
+            }
+        });
+    }
+
+    private parseGitIgnoreFile(repositoryUri: string) {
+        this.filesystem.resolveContent(repositoryUri + '/.gitignore', { encoding: 'utf8' })
+        .then(response => {
+            this.gitIgnoreOfRepositories[repositoryUri] = compile(response.content);
+        });
+    }
+
     dispose(): void {
         this.locator.dispose();
         this.execProvider.dispose();
+        this.toDispose.dispose();
     }
 
     async clone(remoteUrl: string, options: Git.Options.Clone): Promise<Repository> {
@@ -341,10 +405,32 @@ export class DugiteGit implements Git {
     }
 
     async status(repository: Repository): Promise<WorkingDirectoryStatus> {
-        const repositoryPath = this.getFsPath(repository);
-        const exec = await this.execProvider.exec();
-        const dugiteStatus = await getStatus(repositoryPath, true, this.limit, { exec });
-        return this.mapStatus(dugiteStatus, repository);
+        const cachedStatus = this.statusOfRepositories[repository.localUri];
+        if (cachedStatus) {
+            return cachedStatus;
+        } else {
+            const repositoryPath = this.getFsPath(repository);
+            const exec = await this.execProvider.exec();
+            const dugiteStatus = await getStatus(repositoryPath, true, this.limit, { exec });
+            const result = await this.mapStatus(dugiteStatus, repository);
+
+            // If this repository is not even in the map then we need to start watching.
+            if (!this.statusOfRepositories.hasOwnProperty(repository.localUri)) {
+                this.fileSystemWatcher.watchFileChanges(repository.localUri).then(watcher =>
+                    this.toDispose.push(Disposable.create(() =>
+                        this.fileSystemWatcher.unwatchFileChanges(watcher)
+                    ))
+                );
+
+                const gitIgnoreExists = await this.filesystem.exists(repository.localUri + '/.gitignore');
+                if (gitIgnoreExists) {
+                    this.parseGitIgnoreFile(repository.localUri);
+                }
+            }
+
+            this.statusOfRepositories[repository.localUri] = result;
+            return result;
+        }
     }
 
     async add(repository: Repository, uri: string | string[]): Promise<void> {
