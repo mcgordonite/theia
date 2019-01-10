@@ -28,7 +28,7 @@ import { DebugThread, StoppedDetails, DebugThreadData } from './model/debug-thre
 import { DebugScope } from './console/debug-console-items';
 import { DebugStackFrame } from './model/debug-stack-frame';
 import { DebugSource } from './model/debug-source';
-import { DebugBreakpoint } from './model/debug-breakpoint';
+import { DebugBreakpoint, DebugBreakpointData } from './model/debug-breakpoint';
 import debounce = require('p-debounce');
 import URI from '@theia/core/lib/common/uri';
 import { BreakpointManager } from './breakpoint/breakpoint-manager';
@@ -507,12 +507,27 @@ export class DebugSession implements CompositeTreeElement {
                 new DebugBreakpoint(data, this.labelProvider, this.breakpoints, this.editorManager, this)
             );
             const enabled = all.filter(b => b.enabled);
-            const response = await this.sendRequest('setBreakpoints', {
-                source: source.raw,
-                sourceModified,
-                breakpoints: enabled.map(({ origin }) => origin.raw)
-            });
-            response.body.breakpoints.map((raw, index) => enabled[index].update({ raw }));
+
+            try { // handle adapters that send unsuccessful messages with error body for invalid breakpoints
+                const response = await this.sendRequest('setBreakpoints', {
+                    source: source.raw,
+                    sourceModified,
+                    breakpoints: enabled.map(({ origin }) => origin.raw)
+                });
+                response.body.breakpoints.map((raw, index) => enabled[index].update({ raw }));
+            } catch (error) {
+                console.log(`updateBreakpoints: ERROR: ${JSON.stringify(error)}`);
+                enabled.forEach((brkPoint: DebugBreakpoint) => {
+                    const debugBreakpointData: Partial<DebugBreakpointData> = {
+                        raw: {
+                            verified: false,
+                            message: 'Breakpoint not set'
+                        }
+                    };
+                    brkPoint.update(debugBreakpointData);
+                });
+            }
+
             this.setBreakpoints(affectedUri, all);
         }
     }
