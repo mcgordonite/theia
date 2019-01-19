@@ -35,6 +35,7 @@ import { BreakpointManager } from './breakpoint/breakpoint-manager';
 import { DebugSessionOptions, InternalDebugSessionOptions } from './debug-session-options';
 import { DebugConfiguration } from '../common/debug-common';
 import { OutputChannel } from '@theia/output/lib/common/output-channel';
+import { FileSystem } from '@theia/filesystem/lib/common';
 
 export enum DebugState {
     Inactive,
@@ -72,6 +73,7 @@ export class DebugSession implements CompositeTreeElement {
         protected readonly labelProvider: LabelProvider,
         protected readonly messages: MessageClient,
         protected readonly traceOutputChannel: OutputChannel | undefined,
+        protected readonly fileSystem: FileSystem
     ) {
         this.connection = new DebugSessionConnection(id, connectionProvider, traceOutputChannel);
         this.connection.onRequest('runInTerminal', (request: DebugProtocol.RunInTerminalRequest) => this.runInTerminal(request));
@@ -133,12 +135,27 @@ export class DebugSession implements CompositeTreeElement {
     getSourceForUri(uri: URI): DebugSource | undefined {
         return this.sources.get(uri.toString());
     }
-    toSource(uri: URI): DebugSource {
+    async toSource(uri: URI): Promise<DebugSource> {
         const source = this.getSourceForUri(uri);
         if (source) {
             return source;
         }
-        return this.getSource(DebugSource.toSource(uri));
+
+        return this.getSource(await this.toDebugSource(uri));
+    }
+
+    async toDebugSource(uri: URI): Promise<DebugProtocol.Source> {
+        if (uri.scheme === DebugSource.SCHEME) {
+            return {
+                name: uri.path.toString(),
+                sourceReference: Number(uri.query)
+            };
+        }
+        const path = await this.fileSystem.getFsPath(uri.toString());
+        return {
+            name: uri.displayName,
+            path
+        };
     }
 
     protected _threads = new Map<number, DebugThread>();
@@ -522,7 +539,7 @@ export class DebugSession implements CompositeTreeElement {
         }
         const { uri, sourceModified } = options;
         for (const affectedUri of this.getAffectedUris(uri)) {
-            const source = this.toSource(affectedUri);
+            const source = await this.toSource(affectedUri);
             const all = this.breakpoints.findMarkers({ uri: affectedUri }).map(({ data }) =>
                 new DebugBreakpoint(data, this.labelProvider, this.breakpoints, this.editorManager, this)
             );

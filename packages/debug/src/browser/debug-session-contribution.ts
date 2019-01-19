@@ -25,6 +25,7 @@ import { BreakpointManager } from './breakpoint/breakpoint-manager';
 import { DebugSessionOptions } from './debug-session-options';
 import { OutputChannelManager, OutputChannel } from '@theia/output/lib/common/output-channel';
 import { DebugPreferences } from './debug-preferences';
+import { FileSystem } from '@theia/filesystem/lib/common';
 
 /**
  * DebugSessionContribution symbol for DI.
@@ -84,6 +85,9 @@ export class DefaultDebugSessionFactory implements DebugSessionFactory {
     @inject(DebugPreferences)
     protected readonly debugPreferences: DebugPreferences;
 
+    @inject(FileSystem)
+    protected readonly fileSystem: FileSystem;
+
     protected traceOutputChannel: OutputChannel | undefined;
 
     get(sessionId: string, options: DebugSessionOptions): DebugSession {
@@ -103,6 +107,7 @@ export class DefaultDebugSessionFactory implements DebugSessionFactory {
             this.labelProvider,
             this.messages,
             traceOutputChannel,
+            this.fileSystem
         );
     }
 }
