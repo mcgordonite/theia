@@ -18,5 +18,5 @@ import { ContainerModule } from 'inversify';
 
 export default new ContainerModule(bind => {
     //tslint:disable
-    (<any>process).send({ msg: 'Works' });
+    // (<any>process).send({ msg: 'Works' });
 });

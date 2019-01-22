@@ -20,6 +20,10 @@ import { injectable, postConstruct } from 'inversify';
 export class MasterDeps {
     @postConstruct()
     init() {
-        console.log('I AM HERE');
+        console.log('Post constructed');
+    }
+
+    public start() {
+        console.log('Started on master process');
     }
 }
