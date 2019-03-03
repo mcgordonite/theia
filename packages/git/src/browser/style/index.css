@@ -21,7 +21,8 @@
     background: var(--theia-layout-color0);
 }
 
-.theia-git:focus, .theia-git :focus {
+.theia-git:focus,
+.theia-git :focus {
     outline: 0;
     box-shadow: none;
     border: none;
@@ -174,6 +175,13 @@
     flex-grow: 1;
 }
 
+.amendedCommitsOuterContainer {
+    overflow-y: auto;
+    border-top: 1px dotted var(--theia-layout-color4);
+    width: 100%;
+    min-height: 15px;
+}
+
 #theia-gitContainer .warn {
     background-color: var(--theia-error-color2) !important;
 }
@@ -182,11 +190,11 @@
     width: 100%;
 }
 
-.theia-git div:focus .theia-mod-selected{
+.theia-git div:focus .theia-mod-selected {
     background: var(--theia-accent-color3);
 }
 
-.theia-git .theia-mod-selected{
+.theia-git .theia-mod-selected {
     background: var(--theia-accent-color4);
 }
 
@@ -200,10 +208,104 @@
     display: flex;
     border-top: 1px solid var(--theia-layout-color4);
     width: 100%;
-    padding-top: 6px;
 }
 
-.theia-git-last-commit-container img {
+.theia-git-last-commit-and-button {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+}
+
+.theia-git-last-commit-avatar-and-text {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    padding-top: 2px;
+}
+
+.theia-git-last-commit-wrapper-that-does-not-break-elipses {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.theia-git-last-commit-avatar-and-text img {
+    width: 27px;
+}
+
+.theia-git-into-amend-start {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    height: 0;
+    padding-top: 2px;
+}
+
+.theia-git-into-amend-start img {
+    width: 27px;
+}
+
+.theia-git-into-amend-after {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    height: 40px;
+    padding-top: 2px;
+
+    -webkit-transition-property: height;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: linear;
+    transition-property: height;
+    transition-duration: 0.5s;
+    transition-timing-function: linear;
+}
+
+.theia-git-into-amend-after img {
+    width: 27px;
+}
+
+.theia-git-exit-amend-start {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    height: 40px;
+    padding-top: 2px;
+}
+
+.theia-git-exit-amend-start img {
+    width: 27px;
+}
+
+.theia-git-exit-amend-after {
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    height: 0;
+    padding-top: 2px;
+
+    -webkit-transition-property: height;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: linear;
+    transition-property: height;
+    transition-duration: 0.5s;
+    transition-timing-function: linear;
+}
+
+.theia-git-exit-amend-after img {
     width: 27px;
 }
 
@@ -244,6 +346,157 @@
 .flex-container-center {
     display: flex;
     align-items: center;
+}
+
+.scolling-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.stationary-part {
+    position: relative;
+    width: 100%;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.top-part-before-moving-up {
+    display: flex;
+    top: 0;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.top-part-after-moving-up {
+    top: -40px;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+
+    -webkit-transition-property: top;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: linear;
+    transition-property: top;
+    transition-duration: 0.5s;
+    transition-timing-function: linear;
+}
+
+.bottom-part-before-moving-up {
+    bottom: -40px;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.bottom-part-after-moving-up {
+    bottom: 0;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+
+    -webkit-transition-property: bottom;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: linear;
+    transition-property: bottom;
+    transition-duration: 0.5s;
+    transition-timing-function: linear;
+}
+
+.top-part-before-moving-down {
+    display: flex;
+    top: -40px;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.top-part-after-moving-down {
+    top: 0;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+
+    -webkit-transition-property: top;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: linear;
+    transition-property: top;
+    transition-duration: 0.5s;
+    transition-timing-function: linear;
+}
+
+.bottom-part-before-moving-down {
+    bottom: 0;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.bottom-part-after-moving-down {
+    bottom: -40px;
+    position: absolute;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+
+    -webkit-transition-property: bottom;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: linear;
+    transition-property: bottom;
+    transition-duration: 0.5s;
+    transition-timing-function: linear;
 }
 
 .theia-git-commit-message-container textarea {
@@ -320,11 +573,11 @@
     -moz-user-select: none;
     -ms-user-select: none;
     -o-user-select: none;
- }
+}
 
- .no-select:focus {
+.no-select:focus {
     outline: none;
- }
+}
 
 .git-tab-icon::before {
     content: "\f126"
@@ -343,9 +596,9 @@
     cursor: pointer;
 }
 
-.git-theia-header:hover > .git-change-list-buttons-container {
+.git-theia-header:hover>.git-change-list-buttons-container {
     visibility: visible;
- }
+}
 
 .git-change-list-buttons-container {
     align-self: center;
