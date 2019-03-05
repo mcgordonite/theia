@@ -153,6 +153,19 @@ export class GitWidget extends GitDiffWidget implements StatefulWidget {
                             if (this.lastCommit) {
                                 const direction = this.transitionHint === 'amend' ? 'up' : 'down';
                                 this.transition = { state: 'start', direction, previousLastCommit: this.lastCommit };
+                                switch (this.transitionHint) {
+                                    case 'amend':
+                                        if (this.lastCommit) {
+                                            this.amendingCommits.push(this.lastCommit);
+                                        }
+                                        break;
+                                    case 'unamend':
+                                        const commitToRestore = this.amendingCommits.pop();
+                                        if (!nextCommit || !commitToRestore || nextCommit.commit.sha !== commitToRestore.commit.sha) {
+                                            // something is wrong
+                                        }
+                                        break;
+                                }
                                 this.lastCommit = nextCommit;
                                 this.onNextFrame(() => {
                                     this.transition.state = 'transitioning';
@@ -246,10 +259,13 @@ export class GitWidget extends GitDiffWidget implements StatefulWidget {
         };
     }
 
+    /**
+     * This function will update the 'model' (lastCommit, amendingCommits) only
+     * when the Git repository sees the last commit change.
+     * 'render' can be called at any time, so be sure we don't update any 'model'
+     * fields until we actually start the transition.
+     */
     protected async amend(): Promise<void> {
-        if (this.lastCommit) {
-            this.amendingCommits.push(this.lastCommit);
-        }
         const { selectedRepository } = this.repositoryProvider;
         if (selectedRepository) {
             const message = (await this.git.exec(selectedRepository, ['log', '-n', '1', '--format=%B'])).stdout.trim();
@@ -266,9 +282,11 @@ export class GitWidget extends GitDiffWidget implements StatefulWidget {
     }
 
     protected async unamend(): Promise<void> {
-        const commitToRestore = this.amendingCommits.pop();
-        const oldestAmendCommit = (this.amendingCommits.length > 0)
+        const commitToRestore = (this.amendingCommits.length >= 1)
             ? this.amendingCommits[this.amendingCommits.length - 1]
+            : undefined;
+        const oldestAmendCommit = (this.amendingCommits.length >= 2)
+            ? this.amendingCommits[this.amendingCommits.length - 2]
             : undefined;
 
         const { selectedRepository } = this.repositoryProvider;
