@@ -17,14 +17,21 @@ const writeFile = (filePath, content) => new Promise((resolve, reject) => {
     });
 });
 
-const dirExists = dir => new Promise((resolve, reject) => {
-    fs.access(dir, err => {
+const fileExists = filePath => new Promise((resolve, reject) => {
+    fs.access(filePath, err => {
         if (err) {
             if (err.code === 'ENOENT') resolve(false);
             else reject(err);
         } else {
             resolve(true);
         }
+    });
+});
+
+const readDir = dirPath => new Promise((resolve, reject) => {
+    fs.readdir(dirPath, { withFileTypes: true }, (err, files) => {
+        if (err) reject(err);
+        else resolve(files);
     });
 });
 
@@ -42,66 +49,109 @@ const modifyJsonFile = (filePath, modify) => readFile(filePath)
     .then(contentJson => JSON.stringify(modify(JSON.parse(contentJson)), null, 2) + '\n')
     .then(modified => writeFile(filePath, modified));
 
-const main = args => {
-    const packageName = args[0];
-    const version = args[1];
+// List all directories under packages and dev-packages that have a package.json file
+const listAllPackages = () => {
+    const prodPackagesDir = path.resolve(process.cwd(), 'packages');
+    const devPackagesDir = path.resolve(process.cwd(), 'dev-packages');
 
-    if (!packageName || !version) {
-        console.log('Usage: node --experimental-modules publish.mjs <packageName> <version>');
+    return Promise.all([readDir(prodPackagesDir), readDir(devPackagesDir)])
+        .then(([prodEntries, devEntries]) => {
+            const prodDirs = prodEntries
+                .filter(dirent => dirent.isDirectory())
+                .map(({ name }) => [name, path.join(prodPackagesDir, name)]);
+
+            const devDirs = devEntries
+                .filter(dirent => dirent.isDirectory())
+                .map(({ name }) => [name, path.join(devPackagesDir, name)]);
+
+            const promises = [...prodDirs, ...devDirs].map(
+                ([name, dir]) => fileExists(path.join(dir, 'package.json')).then(exists => [{ name, dir }, exists])
+            );
+
+            return Promise.all(promises);
+        })
+        .then(existences => existences.filter(([_, exists]) => exists).map(([packageData]) => packageData));
+};
+
+const mapDependencies = (version, theiaPackageNames, originalDeps = {}) => {
+    return Object.entries(originalDeps).reduce((acc, [name, value]) => {
+        const foundName = theiaPackageNames.find(theiaName => name === `@theia/${theiaName}`);
+
+        return foundName
+            ? { ...acc, [`@mcgordonite/theia-${foundName}`]: version }
+            : { ...acc, [name]: value };
+    }, {});
+};
+
+const main = args => {
+    const version = args[0];
+
+    if (!version) {
+        console.log('Usage: node --experimental-modules publish.mjs <version>');
         process.exit(1);
     }
 
-    console.log(`Publishing package ${packageName} at version ${version}`);
+    console.log('Publishing all theia packages');
 
-    const prodPackageDir = path.resolve(process.cwd(), 'packages', packageName);
-    const devPackageDir = path.resolve(process.cwd(), 'dev-packages', packageName);
+    listAllPackages()
+        .then(theiaPackages => {
+            const theiaPackageNames = theiaPackages.map(({ name }) => name);
 
-    Promise.all([
-        dirExists(prodPackageDir),
-        dirExists(devPackageDir)
-    ]).then(
-        ([prodPackageDirExists, devPackageDirExists]) => {
-            if (prodPackageDirExists || devPackageDirExists) {
-                let packageDir;
-
-                if (prodPackageDirExists) {
-                    console.log('Identified as a production package');
-                    packageDir = prodPackageDir;
-                } else {
-                    console.log('Identified as a dev package');
-                    packageDir = devPackageDir;
-                }
-
-                const packageJsonPath = path.join(packageDir, 'package.json');
+            const promises = theiaPackages.map(({ name, dir }) => {
+                const packageJsonPath = path.join(dir, 'package.json');
 
                 return modifyJsonFile(
                     packageJsonPath,
                     current => ({
-                        ...current, name: `@mcgordonite/theia-${packageName}`, version, repository: {
+                        ...current,
+                        name: `@mcgordonite/theia-${name}`,
+                        version,
+                        repository: {
                             "type": "git",
                             "url": "https://github.com/mcgordonite/theia.git"
-                        }
+                        },
+                        dependencies: mapDependencies(version, theiaPackageNames, current.dependencies)
                     })
-                ).then(() => runYarn(['publish', '--new-version', version], packageDir)).then(
-                    () => {
-                        console.log("Done");
-                        process.exit(0);
-                    },
-                    error => {
-                        console.error(error);
-                        process.exit(2);
-                    }
                 );
-            } else {
-                console.error('Could not find package');
+            });
+
+            return Promise.all(promises).then(() => theiaPackages);
+        })
+        .then(theiaPackages => new Promise((resolve, reject) => {
+            console.log('===', theiaPackages);
+
+            const run = index => {
+                const theiaPackage = theiaPackages[index];
+                console.log(`=== ${index} ${theiaPackage}`);
+
+                if (theiaPackage) {
+                    console.log(`Publishing ${theiaPackage.name}...`);
+
+                    runYarn(['publish', '--new-version', version], theiaPackage.dir).then(
+                        output => {
+                            console.log(`=== ${output}`);
+                            return run(index + 1)
+                        },
+                        reject
+                    );
+                } else {
+                    resolve();
+                }
+            };
+
+            // Run in series
+            run(0);
+        }))
+        .then(
+            () => {
+                console.log("Done");
+                process.exit(0);
+            },
+            error => {
+                console.error(error);
                 process.exit(1);
             }
-        },
-        error => {
-            console.error(error);
-            process.exit(2);
-        }
-    );
+        );
 };
 
 main(process.argv.slice(2));
